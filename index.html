@@ -671,6 +671,19 @@ footer strong{color:var(--gold);font-family:'Cinzel',serif}
       </div>
     </div>
 
+    <!-- WEATHER CARD -->
+    <div class="card" id="weather-card" style="display:none">
+      <div class="sec-label">Trip Forecast</div>
+      <div class="card-head">
+        <div class="c-icon" style="background:linear-gradient(135deg,#1a3a6e,#2a7aae)">🌦️</div>
+        <div><div class="c-title">Weather in <span id="w-dest-city">—</span></div><div class="c-sub" id="w-sub">—</div></div>
+      </div>
+      <div id="weather-body">
+        <div class="ms-text" style="color:rgba(245,239,224,0.45)">Loading forecast…</div>
+      </div>
+      <div style="font-size:0.62rem;color:rgba(245,239,224,0.3);margin-top:0.8rem">Live data via <a href="https://open-meteo.com" target="_blank" rel="noopener" style="color:rgba(201,168,76,0.5)">Open-Meteo</a> — free, no API key required.</div>
+    </div>
+
     <!-- TOTAL CARD -->
     <div class="total-wrap" id="total-wrap">
       <div class="total-eyebrow">✦ Estimated Grand Total ✦</div>
@@ -688,9 +701,13 @@ footer strong{color:var(--gold);font-family:'Cinzel',serif}
       </div>
       <div class="grand-total-num" id="grand-num">RM 0</div>
       <div class="total-currency">Malaysian Ringgit (MYR)</div>
+      <div id="fx-row" style="display:none;margin-top:0.6rem;font-size:0.8rem;color:rgba(245,239,224,0.6)">
+        ≈ <span id="fx-usd">—</span> &nbsp;·&nbsp; <span id="fx-sgd">—</span> &nbsp;·&nbsp; <span id="fx-gbp">—</span>
+        <div style="font-size:0.6rem;opacity:0.5;margin-top:0.25rem">Live exchange rate via Frankfurter.dev (ECB reference rates)</div>
+      </div>
       <span class="tier-badge" id="tier-badge">—</span>
       <div class="total-disclaimer">
-        * Prices are estimates based on average market rates as of 2026.<br>
+        * Flight &amp; hotel prices are curated estimates based on average market rates as of 2026 — not live.<br>
         Actual fares vary by date, availability &amp; promotions. Always verify before booking.<br>
         Cheapest option is pre-selected; you may choose any airline or hotel above.
       </div>
@@ -761,6 +778,103 @@ const HOTELS = [
   {id:'hotels',name:'Hotels.com',code:'HC',cls:'hl-hotels',url:(dest,ci,co,rooms)=>`https://www.hotels.com/search.do?q-destination=${dest}&q-check-in=${ci}&q-check-out=${co}&q-rooms=${rooms}`},
 ];
 
+// Coordinates for live weather lookups (Open-Meteo, no API key required)
+const DEST_COORDS = {
+  KCH:{lat:1.5533,lon:110.3592}, MYY:{lat:4.3995,lon:113.9915},
+  SBW:{lat:2.2872,lon:111.8305}, BTU:{lat:3.1667,lon:113.0333},
+  LMN:{lat:4.7500,lon:115.0000}, MKM:{lat:2.8996,lon:112.0764},
+};
+
+// WMO weather codes (subset used by Open-Meteo) -> emoji + label
+const WMO_CODES = {
+  0:['☀️','Clear sky'],1:['🌤️','Mainly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],
+  45:['🌫️','Fog'],48:['🌫️','Fog'],
+  51:['🌦️','Light drizzle'],53:['🌦️','Drizzle'],55:['🌦️','Dense drizzle'],
+  61:['🌧️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],
+  80:['🌧️','Rain showers'],81:['🌧️','Rain showers'],82:['⛈️','Violent showers'],
+  95:['⛈️','Thunderstorm'],96:['⛈️','Thunderstorm'],99:['⛈️','Thunderstorm'],
+};
+function wmoLabel(code){return WMO_CODES[code]||['🌡️','—']}
+
+// General Sarawak seasonal climate notes (fallback when trip is beyond the live forecast window)
+const SARAWAK_CLIMATE = [
+  'Northeast monsoon — frequent heavy rain, especially on the coast. Pack a rain jacket.',
+  'Tail end of monsoon season — still wet, expect regular showers.',
+  'Transitional month — rain becoming less frequent.',
+  'Generally drier, warm and humid — good travel window.',
+  'One of the drier months — hot, humid, occasional afternoon showers.',
+  'Dry-ish season continues — hot days, good for outdoor activities.',
+  'Southwest monsoon period — drier than average, warm.',
+  'Similar to July — drier stretch, ideal for jungle trekking.',
+  'Rain starts picking up again toward month end.',
+  'Wetter month — showers become more frequent.',
+  'Northeast monsoon begins — heavy rain likely, especially in coastal areas.',
+  'Peak monsoon — the wettest month of the year, expect frequent heavy rain.',
+];
+
+/* ===== LIVE WEATHER (Open-Meteo — free, no key) ===== */
+async function loadWeather(dest,ci,co){
+  const card=document.getElementById('weather-card');
+  const body=document.getElementById('weather-body');
+  card.style.display='block';
+  document.getElementById('w-dest-city').textContent=DEST_NAMES[dest];
+  body.innerHTML='<div class="ms-text" style="color:rgba(245,239,224,0.45)">Loading forecast…</div>';
+
+  const today=new Date(); today.setHours(0,0,0,0);
+  const diffDays=Math.round((new Date(ci)-today)/86400000);
+
+  if(diffDays<0||diffDays>15){
+    const month=new Date(ci).getMonth();
+    document.getElementById('w-sub').textContent='Beyond live forecast range — general climate guide';
+    body.innerHTML=`<div class="info-box">🗓️ ${['January','February','March','April','May','June','July','August','September','October','November','December'][month]} in Sarawak: ${SARAWAK_CLIMATE[month]}</div>`;
+    return;
+  }
+
+  try{
+    const {lat,lon}=DEST_COORDS[dest];
+    const endDate=co&&co>ci?co:ci;
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_mean&timezone=Asia%2FKuching&start_date=${ci}&end_date=${endDate}`;
+    const res=await fetch(url);
+    if(!res.ok)throw new Error('weather fetch failed');
+    const data=await res.json();
+    document.getElementById('w-sub').textContent=`${data.daily.time.length}-day forecast for your trip`;
+
+    let html='<table class="compare-table"><thead><tr><th>Date</th><th>Sky</th><th>Temp</th><th>Rain chance</th></tr></thead><tbody>';
+    data.daily.time.forEach((date,i)=>{
+      const [emoji,label]=wmoLabel(data.daily.weathercode[i]);
+      const hi=Math.round(data.daily.temperature_2m_max[i]);
+      const lo=Math.round(data.daily.temperature_2m_min[i]);
+      const rain=data.daily.precipitation_probability_mean[i];
+      html+=`<tr><td>${date}</td><td>${emoji} ${label}</td><td>${hi}° / ${lo}°C</td><td>${rain==null?'—':rain+'%'}</td></tr>`;
+    });
+    html+='</tbody></table>';
+    body.innerHTML=html;
+  }catch(e){
+    document.getElementById('w-sub').textContent='Forecast unavailable';
+    body.innerHTML='<div class="ms-text" style="color:rgba(245,239,224,0.4)">Could not load live forecast right now — try again later.</div>';
+  }
+}
+
+/* ===== LIVE CURRENCY CONVERSION (Frankfurter.dev — free, no key) ===== */
+async function loadFx(amountMYR){
+  const row=document.getElementById('fx-row');
+  try{
+    const url='https://api.frankfurter.dev/v1/latest?base=MYR&symbols=USD,SGD,GBP';
+    const res=await fetch(url);
+    if(!res.ok)throw new Error('fx fetch failed');
+    const data=await res.json();
+    const usd=(amountMYR*data.rates.USD).toFixed(0);
+    const sgd=(amountMYR*data.rates.SGD).toFixed(0);
+    const gbp=(amountMYR*data.rates.GBP).toFixed(0);
+    document.getElementById('fx-usd').textContent=`$${usd} USD`;
+    document.getElementById('fx-sgd').textContent=`S$${sgd} SGD`;
+    document.getElementById('fx-gbp').textContent=`£${gbp} GBP`;
+    row.style.display='block';
+  }catch(e){
+    row.style.display='none';
+  }
+}
+
 /* STATE */
 let selectedTier = 'opt';
 
@@ -782,9 +896,14 @@ function updateNights(){
 const today=new Date().toISOString().split('T')[0];
 document.getElementById('checkin').min=today;
 document.getElementById('checkout').min=today;
+document.getElementById('checkin').addEventListener('change',()=>{
+  const ci=document.getElementById('checkin').value;
+  const co=document.getElementById('checkout');
+  if(ci){co.min=ci; if(co.value&&co.value<=ci)co.value=''}
+});
 
 /* ===== MAIN CALCULATE ===== */
-function calculate(){
+async function calculate(){
   const origin=document.getElementById('origin').value;
   const dest=document.getElementById('destination').value;
   const ci=document.getElementById('checkin').value;
@@ -909,6 +1028,10 @@ function calculate(){
   tw.classList.add('pulse');
   setTimeout(()=>tw.classList.remove('pulse'),1100);
   setTimeout(()=>rs.scrollIntoView({behavior:'smooth',block:'start'}),200);
+
+  /* LIVE DATA — weather forecast & currency conversion (free public APIs, no keys) */
+  loadWeather(dest,ci,co);
+  loadFx(grand);
 }
 </script>
 
@@ -944,7 +1067,7 @@ function calculate(){
           SarawakGo is a <strong>free travel cost estimation tool</strong> intended solely to help users plan and budget for trips within Sarawak, Malaysia. All prices displayed — including flight fares, hotel rates, airport taxes, and service charges — are <strong>reference estimates based on historical and average market data</strong> gathered prior to publication.
         </div>
         <div class="highlight-box">
-          ⚠️ This tool does <strong>not</strong> connect to any airline system, hotel reservation platform, or live pricing API. No real-time data is retrieved at any point. Prices shown may differ significantly from actual prices at the time of booking.
+          ⚠️ This tool does <strong>not</strong> connect to any airline system or hotel reservation platform — flight and hotel <strong>prices</strong> are not live. Weather forecasts (via Open-Meteo) and currency conversion (via Frankfurter.dev) are pulled live from free, public, no-key-required APIs, but the underlying fare and room rates remain curated estimates and may differ significantly from actual prices at the time of booking.
         </div>
       </div>
 

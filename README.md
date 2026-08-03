@@ -23,7 +23,9 @@ It compares estimated fares across multiple airlines and hotel booking platforms
 - **Cheapest option auto-highlighted** for both flights and hotels
 - **Night counter** — auto-calculates nights from check-in/check-out dates
 - **Full cost breakdown** — base fares, airport taxes, hotel service charges, subtotals, grand total
-- **100% client-side** — pure HTML, CSS, JavaScript. Zero dependencies. Works offline after download.
+- **Live weather forecast** for your destination and travel dates via [Open-Meteo](https://open-meteo.com) (free, no API key) — falls back to a general seasonal climate note for trips beyond the 16-day forecast window
+- **Live currency conversion** of your grand total into USD, SGD & GBP via [Frankfurter.dev](https://frankfurter.dev) (free, no API key, ECB reference rates)
+- **100% client-side** — pure HTML, CSS, JavaScript. No backend, no build step, no API keys to configure. Works offline for cost estimation; weather/currency features require an internet connection.
 - **Sarawak-themed UI** — hand-drawn Rhinoceros Hornbill SVG, jungle-gold colour palette, Cinzel + Playfair Display typography
 
 ---
@@ -83,7 +85,7 @@ open index.html   # macOS
 
 Prices shown are **estimates based on average market rates as of 2026**. Actual fares vary by date, seat availability, promotions and airline policy. Always verify the final price on the respective booking platform before purchasing.
 
-This tool does **not** call any live API. It uses curated reference pricing updated manually.
+Flight and hotel prices are **not** live — they use curated reference pricing updated manually. Weather and currency conversion figures **are** fetched live from free, public, no-key APIs (Open-Meteo & Frankfurter.dev).
 
 ---
 
@@ -96,8 +98,10 @@ This tool does **not** call any live API. It uses curated reference pricing upda
 | Logic | Vanilla JavaScript (ES6+) |
 | Fonts | Google Fonts — Cinzel, Playfair Display, Outfit |
 | Icons | SVG (hand-drawn Rhinoceros Hornbill) |
+| Weather data | [Open-Meteo](https://open-meteo.com) — free, no API key |
+| Currency rates | [Frankfurter.dev](https://frankfurter.dev) — free, no API key |
 | Hosting | Any static host (Netlify / GitHub Pages / Cloudflare) |
-| Dependencies | **None** |
+| Dependencies | **None** (weather/currency calls are plain `fetch()` to free public APIs — no SDKs, no keys to manage) |
 
 ---
 
