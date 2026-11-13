@@ -2,7 +2,7 @@
 
 > *Plan your Sarawak trip and know the full cost before you go.*
 
-**Built by AhChaiTrp · Sarikei, Sarawak · © 2026**
+**Built by AhChai · © 2026**
 
 **Live:** [trulypureman.github.io/sarawakgo](https://trulypureman.github.io/sarawakgo)
 
