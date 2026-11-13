@@ -1,36 +1,43 @@
-# 🦜 SarawakGo — Sarawak Travel Cost Calculator
+# 🦜 SarawakGo — Sarawak Trip Cost Planner
 
-> *Estimate your flight & hotel costs to any destination in Sarawak — instantly, beautifully.*
+> *Plan your Sarawak trip and know the full cost before you go.*
 
-**Built by [AhChaiTrp](https://github.com/AhChaiTrp) · © 2026**
+**Built by AhChaiTrp · Sarikei, Sarawak · © 2026**
+
+**Live:** [trulypureman.github.io/sarawakgo](https://trulypureman.github.io/sarawakgo)
 
 ---
 
 ## ✦ What is SarawakGo?
 
-**SarawakGo** is a free, single-file travel cost estimator designed exclusively for trips within **Sarawak, Malaysia** — the Land of the Hornbill. No sign-up. No API keys. No backend. Just open the file and plan your trip.
+SarawakGo is a free, single-file trip cost planner for **Sarawak, Malaysia**, the Land of the Hornbill. Pick where you're flying from, your Sarawak destination, your dates and your travel style. It estimates the **whole trip**: flights, accommodation with Malaysian taxes, and daily spending. It also shows the weather forecast and converts the total into your currency.
 
-It compares estimated fares across multiple airlines and hotel booking platforms side-by-side, then calculates a full cost breakdown — flight subtotal, hotel subtotal, taxes, service charges — and delivers a **grand total** in Malaysian Ringgit (MYR).
-
----
-
-## ✈️ Features
-
-- **Airline comparison** across AirAsia, Malaysia Airlines, Batik Air & Firefly
-- **Hotel platform comparison** across Agoda, Booking.com, Airbnb & Hotels.com
-- **3 travel tiers** — Optimal Budget 🌿, Comfort Travel ✈️, Comfort+ Travel 👑
-- **Live deep-links** — every airline and hotel row links directly to their booking page, pre-filled with your route, dates and rooms
-- **Cheapest option auto-highlighted** for both flights and hotels
-- **Night counter** — auto-calculates nights from check-in/check-out dates
-- **Full cost breakdown** — base fares, airport taxes, hotel service charges, subtotals, grand total
-- **Live weather forecast** for your destination and travel dates via [Open-Meteo](https://open-meteo.com) (free, no API key) — falls back to a general seasonal climate note for trips beyond the 16-day forecast window
-- **Live currency conversion** of your grand total into USD, SGD & GBP via [Frankfurter.dev](https://frankfurter.dev) (free, no API key, ECB reference rates)
-- **100% client-side** — pure HTML, CSS, JavaScript. No backend, no build step, no API keys to configure. Works offline for cost estimation; weather/currency features require an internet connection.
-- **Sarawak-themed UI** — hand-drawn Rhinoceros Hornbill SVG, jungle-gold colour palette, Cinzel + Playfair Display typography
+No sign-up. No API keys. No backend.
 
 ---
 
-## 🗺️ Supported Routes
+## ✨ Features
+
+| Feature | Details |
+| --- | --- |
+| **Live recalculation** | Every change updates the total instantly. There's no "calculate" button to press. |
+| **Return or one-way** | Return trips include the flight home (v1 counted only one way). |
+| **Pick your airline & platform** | Click any airline or hotel platform to use it in the total. The cheapest is pre-selected. |
+| **Malaysian hotel taxes** | 10% service charge + 8% SST (estimated). Optional RM10/room/night tourism tax for non-Malaysian guests. |
+| **Daily spending** | Food, local transport and activities sliders, with defaults for each travel style. |
+| **Cost breakdown chart** | A donut chart and per-person total in a sticky summary panel. |
+| **Destination explorer** | Six destination cards with highlights, local food and a live "flights from" price. |
+| **Weather** | A day-by-day forecast from Open-Meteo, or a seasonal guide for trips beyond 16 days. |
+| **Currency** | Converts the total into USD, SGD, EUR, GBP, AUD, CNY or JPY (ECB rates via Frankfurter). |
+| **Share, copy & print** | Share a link that reopens the exact trip, copy a text summary, or print/save as PDF. |
+| **Auto-save** | Your last trip is remembered in your browser. |
+| **Room advice** | Suggests more rooms when there are more than about 3 guests per room. |
+| **Connection warnings** | Flags routes that usually need a stop (Limbang, Mukah, Kota Bharu). |
+| **Mobile-first** | Works down to 360px wide, with a sticky total bar on phones. |
+
+---
+
+## 🗺️ Destinations
 
 | From | To (Sarawak) |
 |------|-------------|
@@ -43,49 +50,31 @@ It compares estimated fares across multiple airlines and hotel booking platforms
 
 ---
 
-## 💰 Travel Tiers
+## 💰 Travel Styles
 
-| Tier | Flight Class | Hotel Category | Best For |
-|------|-------------|----------------|----------|
-| 🌿 Optimal Budget | Budget carriers (economy, no frills) | Guesthouses & budget hotels | Backpackers, solo travellers |
-| ✈️ Comfort Travel | Mid-tier airlines (economy flex) | 3–4★ business hotels | Couples, small families |
-| 👑 Comfort+ Travel | Premium / business class | 5★ luxury resorts | Corporate travel, honeymoons |
+| Style | Flights | Stay | Daily spend default (per person) |
+|-------|---------|------|------|
+| 🌿 Optimal Budget | Saver fares | Guesthouses & budget hotels | RM 90 / day |
+| ✈️ Comfort Travel | Flexi fares | 3–4★ hotels | RM 200 / day |
+| 👑 Comfort+ Travel | Premium fares | 5★ stays | RM 450 / day |
 
 ---
 
-## 🚀 How to Use
+## 🚀 Run It
 
-### Run Locally
+Open `index.html` in any browser, or host it free on GitHub Pages, Netlify or Cloudflare Pages.
+
 ```bash
-git clone https://github.com/AhChaiTrp/sarawakgo.git
+git clone https://github.com/Trulypureman/sarawakgo.git
 cd sarawakgo
-open index.html   # macOS
-# or just double-click index.html on Windows
+open index.html
 ```
-
-### Host Free (No server needed)
-
-**Netlify Drop** *(fastest — 2 minutes)*
-1. Go to [netlify.com/drop](https://netlify.com/drop)
-2. Drag `index.html` onto the page
-3. Get a live URL instantly
-
-**GitHub Pages** *(recommended)*
-1. Fork this repository
-2. Go to **Settings → Pages → Branch: main → Save**
-3. Live at `https://yourusername.github.io/sarawakgo`
-
-**Cloudflare Pages** *(best performance for Malaysian users)*
-1. [pages.cloudflare.com](https://pages.cloudflare.com) → Upload assets
-2. Drop the file → instantly on Cloudflare's global CDN
 
 ---
 
 ## ⚠️ Disclaimer
 
-Prices shown are **estimates based on average market rates as of 2026**. Actual fares vary by date, seat availability, promotions and airline policy. Always verify the final price on the respective booking platform before purchasing.
-
-Flight and hotel prices are **not** live — they use curated reference pricing updated manually. Weather and currency conversion figures **are** fetched live from free, public, no-key APIs (Open-Meteo & Frankfurter.dev).
+Flight fares, hotel rates and daily spending are **reference estimates based on 2026 average market rates, not live prices**. Only the weather (Open-Meteo) and exchange rates (Frankfurter) are fetched live. Always verify the final price with the airline or booking platform before paying. SarawakGo is not affiliated with any airline or booking platform.
 
 ---
 
@@ -93,49 +82,28 @@ Flight and hotel prices are **not** live — they use curated reference pricing 
 
 | Layer | Technology |
 |-------|-----------|
-| Structure | HTML5 |
-| Styling | CSS3 (custom properties, grid, animations) |
-| Logic | Vanilla JavaScript (ES6+) |
-| Fonts | Google Fonts — Cinzel, Playfair Display, Outfit |
-| Icons | SVG (hand-drawn Rhinoceros Hornbill) |
-| Weather data | [Open-Meteo](https://open-meteo.com) — free, no API key |
-| Currency rates | [Frankfurter.dev](https://frankfurter.dev) — free, no API key |
-| Hosting | Any static host (Netlify / GitHub Pages / Cloudflare) |
-| Dependencies | **None** (weather/currency calls are plain `fetch()` to free public APIs — no SDKs, no keys to manage) |
-
----
-
-## 📁 File Structure
-
-```
-sarawakgo/
-└── index.html      ← Entire app. One file. That's it.
-```
+| App | One `index.html`: HTML5, CSS3, vanilla JavaScript |
+| Fonts | Google Fonts: Playfair Display, Outfit |
+| Weather | [Open-Meteo](https://open-meteo.com), free, no key |
+| Currency | [Frankfurter](https://frankfurter.dev), free, no key |
+| Dependencies | None |
 
 ---
 
 ## 🤝 Contributing
 
-Pull requests are welcome. If you want to:
-- Add more Sarawak destinations (e.g. Marudi, Kapit)
-- Update pricing data for accuracy
-- Add new airline or hotel platforms
-- Translate to Bahasa Malaysia
-
-Fork the repo and submit a PR.
+Pull requests are welcome, for example: more destinations (Mulu, Kapit, Bario), updated price data, AirBorneo/MASwings rural routes, or a Bahasa Malaysia translation.
 
 ---
 
 ## 📄 License
 
-MIT License — free to use, modify and distribute with attribution.
+MIT License: free to use, modify and distribute with attribution.
 
 ---
 
 <div align="center">
 
-Made with ❤️ for **Sarawak** — *Land of the Hornbill*
-
-**[AhChaiTrp](https://github.com/AhChaiTrp)** · Sarikei, Sarawak, Malaysia · 2026
+Made with ❤️ for **Sarawak**, *Land of the Hornbill*
 
 </div>

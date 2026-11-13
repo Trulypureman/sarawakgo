@@ -3,756 +3,525 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SarawakGo — Travel Cost Calculator</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&family=Cinzel:wght@400;600;900&display=swap" rel="stylesheet">
+<title>SarawakGo — Sarawak Trip Cost Planner</title>
+<meta name="description" content="Plan a trip to Sarawak and see the full cost before you go: compare estimated flights and hotels, add daily spending, check the weather and share your budget. Free, no sign-up.">
+<meta name="theme-color" content="#0f2e22">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --jungle: #1a3a2a;
-  --jungle-mid: #2d5a3d;
-  --jungle-light: #4a8c5c;
-  --hornbill-red: #c8401a;
-  --hornbill-orange: #e8652e;
-  --hornbill-yellow: #f0a800;
-  --gold: #c9a84c;
-  --gold-light: #f0cc6e;
-  --cream: #f5efe0;
-  --earth: #7a4f2e;
-  --sky: #1a4a6e;
-  --river: #2a7a8e;
-  --white: #fdfaf5;
-  --dark: #080f0a;
-  --dark2: #0d1f15;
-  --shadow-deep: 0 24px 64px rgba(0,0,0,0.6);
-  --shadow-card: 0 8px 32px rgba(0,0,0,0.3);
-  --border-gold: rgba(201,168,76,0.25);
+:root{
+  --forest:#0f2e22; --forest-2:#174634; --leaf:#2f7d55; --leaf-soft:#e6f1ea;
+  --gold:#c9a24a; --gold-2:#e8c66d; --gold-soft:#f7efd9;
+  --ember:#d4502a; --sky:#2b6f8f; --sky-soft:#e3eff4; --plum:#7a4fa8;
+  --ink:#15221c; --muted:#5d6b64; --line:#e4ded1; --paper:#f8f5ee; --card:#ffffff;
+  --r:16px; --shadow:0 1px 2px rgba(15,46,34,.06),0 8px 24px rgba(15,46,34,.07);
+  --shadow-lg:0 24px 60px rgba(8,25,18,.28);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'Outfit',sans-serif;background:var(--dark);color:var(--white);min-height:100vh;overflow-x:hidden;cursor:default}
+body{font-family:'Outfit',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
 
-/* BG TEXTURE */
-body::before{
-  content:'';position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse 80% 60% at 15% 10%,rgba(42,122,62,0.18) 0%,transparent 60%),
-    radial-gradient(ellipse 60% 40% at 85% 85%,rgba(200,64,26,0.12) 0%,transparent 55%),
-    radial-gradient(ellipse 100% 80% at 50% 50%,rgba(13,31,21,0.9) 0%,transparent 80%);
-  pointer-events:none;z-index:0
-}
+/* ── NAV ── */
+.nav{position:sticky;top:0;z-index:50;height:64px;display:flex;align-items:center;gap:20px;padding:0 32px;
+  background:rgba(11,35,26,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.07);color:#fff}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;letter-spacing:.2px}
+.brand b{color:var(--gold-2);font-weight:700}
+.brand svg{width:46px;height:26px}
+.nav-links{display:flex;gap:4px;margin-left:auto}
+.nav-links a{text-decoration:none;font-size:14px;color:rgba(255,255,255,.75);padding:8px 12px;border-radius:8px}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,.08)}
+.nav-btn{background:none;border:1px solid rgba(232,198,109,.45);color:var(--gold-2);font-size:13px;font-weight:500;padding:7px 14px;border-radius:8px;cursor:pointer}
+.nav-btn:hover{background:rgba(232,198,109,.12)}
+@media (max-width:820px){.nav-links{display:none}.nav-btn{margin-left:auto}}
+@media (max-width:560px){.nav{padding:0 16px;height:56px}.brand{font-size:20px}}
 
-/* ===================== HEADER ===================== */
-header{position:relative;text-align:center;padding:3.5rem 2rem 2.5rem;overflow:hidden;z-index:1}
-.header-bg{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,15,10,0.97) 0%,rgba(26,58,42,0.6) 70%,transparent 100%)}
+/* ── HERO ── */
+.hero{position:relative;overflow:hidden;color:#fff;
+  background:linear-gradient(180deg,#0b231a 0%,#12382a 55%,#1a4a37 100%)}
+.hero-scene{position:absolute;inset:auto 0 0 0;width:100%;height:62%;pointer-events:none}
+.hero-inner{position:relative;max-width:1240px;margin:0 auto;padding:64px 24px 88px;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:48px;align-items:center}
+.hero-bird{width:128px;height:72px;margin-bottom:14px;filter:drop-shadow(0 8px 18px rgba(212,80,42,.45));animation:glide 6s ease-in-out infinite}
+@keyframes glide{0%,100%{transform:translateY(0) rotate(-3deg)}45%{transform:translateY(-10px) rotate(2deg)}}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;color:var(--gold-2);font-size:12px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;margin-bottom:16px}
+.eyebrow::before{content:'';width:28px;height:1px;background:var(--gold)}
+.hero h1{font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(34px,4.6vw,56px);line-height:1.08;letter-spacing:-.4px;margin-bottom:18px;text-wrap:balance}
+.hero h1 em{color:var(--gold-2);font-style:italic;font-weight:600}
+.hero-lead{font-size:17px;font-weight:300;color:rgba(255,255,255,.78);max-width:520px;margin-bottom:26px}
+.hero-stats{display:flex;gap:28px;flex-wrap:wrap}
+.hero-stats div{font-size:13px;color:rgba(255,255,255,.65)}
+.hero-stats b{display:block;font-family:'Playfair Display',serif;font-size:26px;color:#fff;line-height:1.1}
+@media (max-width:1000px){.hero-inner{grid-template-columns:minmax(0,1fr);padding:44px 20px 72px;gap:32px}.hero-stats{display:none}}
+@media (max-width:560px){.hero-inner{padding:32px 16px 56px}.hero-lead{font-size:15.5px}.hero-bird{width:100px;height:56px}}
 
-/* HORNBILL SVG LOGO */
-.hornbill-logo{
-  display:block;margin:0 auto 1rem;
-  width:90px;height:90px;
-  animation:glide 5s ease-in-out infinite;
-  filter:drop-shadow(0 6px 20px rgba(200,64,26,0.6));
-  position:relative;z-index:1
-}
-@keyframes glide{
-  0%,100%{transform:translateY(0) rotate(-3deg) scaleX(1)}
-  40%{transform:translateY(-12px) rotate(2deg) scaleX(1)}
-  80%{transform:translateY(-5px) rotate(-1deg) scaleX(1)}
-}
+/* ── PLANNER ── */
+.planner{background:var(--card);color:var(--ink);border-radius:20px;padding:22px;box-shadow:var(--shadow-lg)}
+.planner-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.seg{font-family:'Outfit',sans-serif;display:inline-flex;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg label{position:relative;cursor:pointer}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;padding:6px 12px;font-size:13px;font-weight:500;border-radius:7px;color:var(--muted);white-space:nowrap}
+.seg input:checked+span{background:var(--forest);color:#fff}
+.seg input:focus-visible+span{outline:2px solid var(--gold)}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld>span{font-size:11.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.fld select,.fld input[type=date]{width:100%;height:44px;border:1.5px solid var(--line);border-radius:10px;background:#fff;padding:0 12px;font-size:15px;appearance:none;-webkit-appearance:none}
+.fld select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 13px) 19px;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+.fld select:focus,.fld input:focus{outline:none;border-color:var(--leaf);box-shadow:0 0 0 3px rgba(47,125,85,.15)}
+.stepper{display:flex;align-items:center;height:44px;border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
+.stepper button{width:42px;height:100%;border:none;background:var(--paper);font-size:18px;cursor:pointer;color:var(--forest)}
+.stepper button:hover:not(:disabled){background:var(--leaf-soft)}
+.stepper button:disabled{opacity:.35;cursor:default}
+.stepper output{flex:1;text-align:center;font-weight:600;font-size:15px}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.tiers label{cursor:pointer;position:relative}
+.tiers input{position:absolute;opacity:0;pointer-events:none}
+.tiers .t{display:block;border:1.5px solid var(--line);border-radius:12px;padding:10px 10px 9px;height:100%;transition:border-color .2s,background .2s}
+.tiers .t b{display:block;font-size:14px}
+.tiers .t small{display:block;font-size:11.5px;color:var(--muted);line-height:1.35;margin-top:2px}
+.tiers input:checked+.t{border-color:var(--forest);background:var(--leaf-soft);box-shadow:inset 0 0 0 1px var(--forest)}
+.tiers input:focus-visible+.t{outline:2px solid var(--gold)}
+.p-extra{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;flex-wrap:wrap}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer}
+.chk input{width:16px;height:16px;accent-color:var(--forest)}
+.nights{font-size:13px;font-weight:600;color:var(--forest);background:var(--leaf-soft);padding:4px 10px;border-radius:20px;white-space:nowrap}
+.p-msg{font-size:13px;color:var(--ember);margin-top:10px;min-height:0}
+.p-msg:empty{display:none}
+.p-tip{font-size:12.5px;color:#7a5a12;background:var(--gold-soft);border-radius:10px;padding:8px 10px;margin-top:10px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.p-tip button{border:none;background:var(--forest);color:#fff;font-size:12px;padding:5px 10px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:50px;margin-top:14px;border:none;border-radius:12px;cursor:pointer;
+  background:linear-gradient(135deg,var(--ember),#e8743f);color:#fff;font-weight:600;font-size:16px;box-shadow:0 8px 20px rgba(212,80,42,.32);transition:transform .2s,box-shadow .2s}
+.cta:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(212,80,42,.4)}
+@media (max-width:420px){.pgrid{grid-template-columns:1fr 1fr;gap:10px}.planner{padding:16px}.tiers .t small{display:none}.seg span{padding:6px 9px}}
 
-.brand-name{
-  font-family:'Cinzel',serif;font-size:clamp(2.8rem,7vw,5rem);font-weight:900;
-  background:linear-gradient(135deg,var(--gold-light) 0%,var(--gold) 35%,var(--hornbill-orange) 70%,var(--hornbill-yellow) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  letter-spacing:0.06em;line-height:1;position:relative;z-index:1
-}
-.brand-tagline{
-  font-family:'Playfair Display',serif;font-style:italic;
-  font-size:clamp(0.85rem,2vw,1rem);color:rgba(245,239,224,0.6);
-  letter-spacing:0.22em;text-transform:uppercase;margin-top:0.6rem;position:relative;z-index:1
-}
-.header-rule{
-  display:flex;align-items:center;justify-content:center;gap:0.8rem;
-  margin:1.2rem auto 0;position:relative;z-index:1
-}
-.header-rule span{color:var(--gold);font-size:0.7rem;letter-spacing:0.4em;opacity:0.7}
-.header-rule::before,.header-rule::after{content:'';flex:1;max-width:100px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
-.header-rule::after{background:linear-gradient(90deg,var(--gold),transparent)}
+/* ── SECTIONS ── */
+.section{max-width:1240px;margin:0 auto;padding:64px 24px 0;scroll-margin-top:64px}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.section-head h2{font-family:'Playfair Display',serif;font-size:clamp(26px,3vw,34px);font-weight:700;letter-spacing:-.2px}
+.section-head p{color:var(--muted);font-size:15px;margin-top:4px}
+@media (max-width:560px){.section{padding:44px 16px 0}}
 
-/* ===================== CONTAINER ===================== */
-.container{max-width:960px;margin:0 auto;padding:0 1.2rem 5rem;position:relative;z-index:1}
+/* destinations */
+.dest-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:1000px){.dest-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.dest-grid{grid-template-columns:minmax(0,1fr)}}
+.dest{position:relative;text-align:left;border:none;cursor:pointer;background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);
+  outline:2px solid transparent;transition:transform .25s,box-shadow .25s,outline-color .2s;display:flex;flex-direction:column}
+.dest:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(15,46,34,.14)}
+.dest.is-sel{outline-color:var(--forest)}
+.dest-art{position:relative;height:118px;color:#fff;padding:14px 16px;display:flex;flex-direction:column;justify-content:flex-end}
+.dest-art .code{position:absolute;right:12px;top:4px;font-family:'Playfair Display',serif;font-size:58px;font-weight:700;opacity:.18;letter-spacing:2px}
+.dest-art h3{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;line-height:1.1}
+.dest-art p{font-size:13px;opacity:.85}
+.dest-sel{position:absolute;left:12px;top:12px;background:#fff;color:var(--forest);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase;display:none}
+.dest.is-sel .dest-sel{display:block}
+.dest-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{font-size:12px;background:var(--paper);border:1px solid var(--line);padding:3px 9px;border-radius:20px;color:#3b4943}
+.dest-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.dest-foot b{color:var(--forest);font-size:15px}
 
-/* SECTION LABEL */
-.sec-label{
-  font-family:'Cinzel',serif;font-size:0.68rem;font-weight:600;
-  letter-spacing:0.35em;text-transform:uppercase;color:var(--gold);
-  margin-bottom:0.7rem;display:flex;align-items:center;gap:0.7rem
-}
-.sec-label::before,.sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.35),transparent);opacity:.7}
+/* results */
+.results{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:22px;align-items:start}
+@media (max-width:1000px){.results{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
+@media (max-width:560px){.card{padding:16px}}
+.card-h{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;flex-shrink:0}
+.ic svg{width:20px;height:20px}
+.ic.fly{background:var(--sky-soft);color:var(--sky)} .ic.htl{background:#efe7f6;color:var(--plum)}
+.ic.day{background:var(--gold-soft);color:#946d12} .ic.wx{background:var(--leaf-soft);color:var(--leaf)}
+.card-h h3{font-size:18px;font-weight:600;line-height:1.25}
+.card-h p{font-size:13px;color:var(--muted)}
+.card-h .amt{margin-left:auto;text-align:right;font-weight:700;font-size:18px;white-space:nowrap}
+.card-h .amt small{display:block;font-size:11px;font-weight:500;color:var(--muted)}
 
-/* ===================== CARDS ===================== */
-.card{
-  background:linear-gradient(150deg,rgba(22,50,32,0.85) 0%,rgba(10,22,15,0.92) 100%);
-  border:1px solid var(--border-gold);border-radius:22px;
-  padding:2rem;margin-bottom:1.4rem;
-  backdrop-filter:blur(14px);
-  box-shadow:var(--shadow-card),inset 0 1px 0 rgba(201,168,76,0.08);
-  transition:transform 0.35s ease,box-shadow 0.35s ease;
-  position:relative;overflow:hidden
-}
-.card::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:2.5px;
-  background:linear-gradient(90deg,var(--jungle-light),var(--gold),var(--hornbill-red))
-}
-.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-deep),inset 0 1px 0 rgba(201,168,76,0.12)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 14px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;transition:border-color .2s,background .2s}
+.opt:hover{border-color:#c9c0ad}
+.opt input{width:17px;height:17px;accent-color:var(--forest)}
+.opt.is-sel{border-color:var(--forest);background:#f6faf7}
+.logo{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;letter-spacing:.3px}
+.al-ak{background:linear-gradient(135deg,#d0021b,#ff3b3b)} .al-mh{background:linear-gradient(135deg,#00205b,#0b4aa8)}
+.al-od{background:linear-gradient(135deg,#6b0f86,#a42ac2)} .al-fy{background:linear-gradient(135deg,#f06400,#ff9a1f)}
+.hl-agoda{background:linear-gradient(135deg,#5e2d91,#e9446a)} .hl-booking{background:linear-gradient(135deg,#003580,#0071c2)}
+.hl-airbnb{background:linear-gradient(135deg,#ff385c,#d70466)} .hl-hotels{background:linear-gradient(135deg,#b3122c,#e63946)}
+.opt-main b{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:15px;font-weight:600}
+.opt-main small{display:block;font-size:12.5px;color:var(--muted)}
+.tag{font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:2px 7px;border-radius:5px;background:var(--leaf-soft);color:var(--leaf)}
+.tag.warn{background:var(--gold-soft);color:#8a6312}
+.opt-end{text-align:right}
+.opt-end strong{display:block;font-size:16px}
+.opt-end a{font-size:12px;color:var(--sky);text-decoration:none;font-weight:500}
+.opt-end a:hover{text-decoration:underline}
+@media (max-width:520px){.opt{grid-template-columns:auto minmax(0,1fr) auto;gap:10px;padding:10px 12px}.opt .logo{display:none}}
+.card-foot{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;margin-top:12px;font-size:13px;color:var(--muted)}
+.link-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--sky);text-decoration:none;border:1px solid #c7dde7;padding:7px 12px;border-radius:9px;background:#fff}
+.link-btn:hover{background:var(--sky-soft)}
+.lines{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px;display:flex;flex-direction:column;gap:5px;font-size:13.5px}
+.lines div{display:flex;justify-content:space-between;gap:10px;color:var(--muted)}
+.lines div b{color:var(--ink);font-weight:600}
 
-.card-head{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
-.c-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
-.c-icon.dest{background:linear-gradient(135deg,#1a4a2a,#3a8a4c)}
-.c-icon.tier{background:linear-gradient(135deg,#7a4f2e,#c8401a)}
-.c-icon.fly{background:linear-gradient(135deg,#1a3a6e,#2a6aae)}
-.c-icon.htl{background:linear-gradient(135deg,#4a2a6e,#8a4aae)}
-.c-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:var(--cream)}
-.c-sub{font-size:0.78rem;color:rgba(245,239,224,0.45);margin-top:0.2rem}
+/* sliders */
+.sliders{display:flex;flex-direction:column;gap:16px}
+.sl-top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px}
+.sl-top b{font-weight:600}
+.sl-top span{color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--gold);height:22px}
+.reset{background:none;border:none;color:var(--sky);font-size:13px;font-weight:600;cursor:pointer;padding:0}
 
-/* ===================== FORM ===================== */
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.form-row.three{grid-template-columns:1fr 1fr 1fr}
-@media(max-width:620px){.form-row,.form-row.three{grid-template-columns:1fr}}
-.fg{display:flex;flex-direction:column;gap:0.45rem}
-label{font-size:0.72rem;font-weight:600;color:rgba(245,239,224,0.6);letter-spacing:0.08em;text-transform:uppercase}
+/* weather */
+.wx-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}
+.wx-day{flex:0 0 108px;scroll-snap-align:start;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;background:linear-gradient(180deg,#fff,#fbfaf6)}
+.wx-day .d{font-size:12px;color:var(--muted);font-weight:600}
+.wx-day .e{font-size:28px;line-height:1.3}
+.wx-day .t{font-size:14px;font-weight:600}
+.wx-day .t span{color:var(--muted);font-weight:400}
+.wx-day .r{font-size:12px;color:var(--sky);margin-top:2px}
+.wx-note{font-size:14px;background:var(--leaf-soft);border-radius:12px;padding:12px 14px;color:#24493a}
+.muted-s{font-size:12px;color:var(--muted);margin-top:10px}
+.muted-s a{color:var(--muted)}
 
-select,input[type="number"],input[type="date"]{
-  background:rgba(8,15,10,0.75);
-  border:1px solid rgba(201,168,76,0.22);border-radius:12px;
-  color:var(--white);font-family:'Outfit',sans-serif;font-size:0.9rem;
-  padding:0.72rem 1rem;outline:none;transition:all 0.3s;width:100%;
-  -webkit-appearance:none;appearance:none;cursor:pointer
-}
-select:focus,input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.14);background:rgba(20,45,28,0.75)}
-select option{background:#0d1f15;color:var(--white)}
-.sw{position:relative}
-.sw::after{content:'▾';position:absolute;right:1rem;top:50%;transform:translateY(-50%);color:var(--gold);pointer-events:none;font-size:0.85rem}
+/* summary */
+.summary{position:sticky;top:84px;background:var(--forest);color:#fff;border-radius:20px;padding:22px;box-shadow:var(--shadow-lg);overflow:hidden}
+.summary::before{content:'';position:absolute;inset:-40% -30% auto auto;width:300px;height:300px;background:radial-gradient(circle,rgba(232,198,109,.18),transparent 65%);pointer-events:none}
+@media (max-width:1000px){.summary{position:relative;top:0}}
+.s-eyebrow{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold-2);font-weight:600}
+.s-route{font-size:14px;color:rgba(255,255,255,.75);margin-top:4px}
+.s-total{font-family:'Playfair Display',serif;font-size:44px;font-weight:700;line-height:1.1;margin-top:10px;letter-spacing:-.5px}
+.s-pp{font-size:14px;color:rgba(255,255,255,.7)}
+.s-chart{display:flex;align-items:center;gap:18px;margin:18px 0 6px}
+.donut{width:120px;height:120px;flex-shrink:0}
+.donut circle{fill:none;stroke-width:16;transition:stroke-dasharray .5s,stroke-dashoffset .5s}
+.legend{display:flex;flex-direction:column;gap:8px;font-size:13.5px;flex:1;min-width:0}
+.legend div{display:grid;grid-template-columns:10px 1fr auto;gap:8px;align-items:center}
+.legend i{width:10px;height:10px;border-radius:3px}
+.legend span{color:rgba(255,255,255,.75)}
+.legend b{font-weight:600}
+.s-fx{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding:12px;border-radius:12px;background:rgba(255,255,255,.07);font-size:14px}
+.s-fx select{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;padding:5px 8px;font-size:13px}
+.s-fx select option{color:var(--ink)}
+.s-fx small{display:block;font-size:11px;color:rgba(255,255,255,.5)}
+.s-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+.s-actions button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#fff;font-size:12.5px;cursor:pointer}
+.s-actions button:hover{background:rgba(255,255,255,.12)}
+.s-actions svg{width:18px;height:18px;color:var(--gold-2)}
+.s-note{font-size:11.5px;color:rgba(255,255,255,.5);margin-top:14px;line-height:1.5}
+.s-note button{background:none;border:none;color:var(--gold-2);text-decoration:underline;cursor:pointer;font-size:11.5px;padding:0}
 
-/* nights pill */
-.nights-pill{
-  display:inline-flex;align-items:center;gap:0.4rem;
-  padding:0.3rem 0.9rem;background:rgba(201,168,76,0.12);
-  border:1px solid rgba(201,168,76,0.28);border-radius:50px;
-  font-size:0.76rem;color:var(--gold-light);margin-top:0.7rem
-}
+.empty{background:var(--card);border:1.5px dashed var(--line);border-radius:var(--r);padding:36px 20px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:4px}
 
-/* ===================== TIER ===================== */
-.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.8rem}
-@media(max-width:500px){.tier-grid{grid-template-columns:1fr}}
-.tier-card{
-  border:2px solid rgba(201,168,76,0.18);border-radius:18px;
-  padding:1.3rem 0.9rem;cursor:pointer;text-align:center;
-  background:rgba(10,22,15,0.6);position:relative;overflow:hidden;
-  transition:all 0.3s ease
-}
-.tier-card .tc-bg{position:absolute;inset:0;opacity:0;transition:opacity 0.3s}
-.tier-card.opt .tc-bg{background:linear-gradient(135deg,rgba(74,140,92,0.25),rgba(42,122,62,0.15))}
-.tier-card.com .tc-bg{background:linear-gradient(135deg,rgba(26,74,110,0.3),rgba(42,122,142,0.15))}
-.tier-card.prem .tc-bg{background:linear-gradient(135deg,rgba(200,64,26,0.25),rgba(201,168,76,0.15))}
-.tier-card:hover .tc-bg,.tier-card.selected .tc-bg{opacity:1}
-.tier-card.selected.opt{border-color:var(--jungle-light);box-shadow:0 0 22px rgba(74,140,92,0.35)}
-.tier-card.selected.com{border-color:var(--river);box-shadow:0 0 22px rgba(42,122,142,0.35)}
-.tier-card.selected.prem{border-color:var(--gold);box-shadow:0 0 28px rgba(201,168,76,0.4)}
-.ti{font-size:2rem;display:block;margin-bottom:0.5rem;position:relative;z-index:1}
-.tn{font-family:'Cinzel',serif;font-size:0.68rem;font-weight:600;letter-spacing:0.12em;margin-bottom:0.3rem;position:relative;z-index:1}
-.tier-card.opt .tn{color:var(--jungle-light)}
-.tier-card.com .tn{color:#5bc4d8}
-.tier-card.prem .tn{color:var(--gold)}
-.td{font-size:0.7rem;color:rgba(245,239,224,0.48);line-height:1.4;position:relative;z-index:1}
+/* mobile total bar */
+.mbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  background:var(--forest);color:#fff;box-shadow:0 -6px 20px rgba(0,0,0,.18)}
+.mbar small{display:block;font-size:11.5px;color:rgba(255,255,255,.65)}
+.mbar strong{font-family:'Playfair Display',serif;font-size:22px}
+.mbar a{background:var(--gold-2);color:var(--forest);text-decoration:none;font-weight:600;font-size:14px;padding:9px 14px;border-radius:9px}
+@media (max-width:1000px){body.has-trip .mbar{display:flex}body.has-trip{padding-bottom:72px}}
 
-/* ===================== AIRLINE COMPARISON TABLE ===================== */
-.compare-table{width:100%;border-collapse:collapse;margin-top:0.5rem}
-.compare-table th{
-  font-family:'Cinzel',serif;font-size:0.65rem;letter-spacing:0.18em;
-  text-transform:uppercase;color:var(--gold);padding:0.6rem 0.8rem;
-  text-align:left;border-bottom:1px solid rgba(201,168,76,0.2)
-}
-.compare-table td{
-  padding:0.75rem 0.8rem;font-size:0.88rem;border-bottom:1px solid rgba(255,255,255,0.04);
-  vertical-align:middle
-}
-.compare-table tr:last-child td{border-bottom:none}
-.compare-table tr:hover td{background:rgba(201,168,76,0.04)}
+/* footer */
+footer{margin-top:72px;background:#0b231a;color:rgba(255,255,255,.6);padding:40px 24px;text-align:center;font-size:13px}
+footer .brand{justify-content:center;color:#fff;margin-bottom:10px}
+footer p+p{margin-top:6px}
+footer button{background:none;border:none;color:var(--gold-2);text-decoration:underline;cursor:pointer;font-size:13px}
 
-.airline-logo{
-  display:inline-flex;align-items:center;gap:0.5rem;
-  font-weight:600;color:var(--cream);font-size:0.88rem
-}
-.al-dot{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:900;font-family:'Cinzel',serif;flex-shrink:0}
-.al-airasia{background:linear-gradient(135deg,#cc0001,#ff3333);color:#fff}
-.al-mas{background:linear-gradient(135deg,#00205b,#0033a0);color:#fff}
-.al-batik{background:linear-gradient(135deg,#7b0099,#a200c8);color:#fff}
-.al-firefly{background:linear-gradient(135deg,#ff6600,#ff9900);color:#fff}
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,200%);visibility:hidden;background:var(--ink);color:#fff;padding:12px 18px;border-radius:10px;font-size:14px;z-index:200;transition:transform .3s;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100vw - 32px)}
+.toast.show{transform:translate(-50%,0);visibility:visible}
+@media (max-width:1000px){body.has-trip .toast{bottom:84px}}
 
-.price-chip{
-  display:inline-block;padding:0.3rem 0.75rem;border-radius:8px;
-  font-weight:700;font-size:0.88rem
-}
-.chip-opt{background:rgba(74,140,92,0.2);color:#7ddb96;border:1px solid rgba(74,140,92,0.3)}
-.chip-com{background:rgba(42,122,142,0.2);color:#5bc4d8;border:1px solid rgba(42,122,142,0.3)}
-.chip-prem{background:rgba(201,168,76,0.15);color:var(--gold-light);border:1px solid rgba(201,168,76,0.3)}
+/* modal */
+.modal{position:fixed;inset:0;z-index:300;background:rgba(5,18,12,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal.open{opacity:1;pointer-events:auto}
+.modal-box{background:#fff;border-radius:18px;max-width:640px;width:100%;max-height:88vh;overflow:auto;box-shadow:var(--shadow-lg)}
+.modal-head{position:sticky;top:0;background:#fff;display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.modal-head h2{font-family:'Playfair Display',serif;font-size:21px}
+.modal-head p{font-size:12.5px;color:var(--muted)}
+.modal-x{margin-left:auto;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:16px}
+.modal-body{padding:18px 22px 22px;font-size:14px;color:#33413a;line-height:1.65}
+.modal-body h4{font-size:13px;letter-spacing:.6px;text-transform:uppercase;color:var(--forest);margin:16px 0 4px}
+.modal-body h4:first-child{margin-top:0}
+.callout{background:var(--gold-soft);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:10px 12px;margin-top:8px}
+.modal-ok{display:block;width:100%;margin-top:18px;height:46px;border:none;border-radius:11px;background:var(--forest);color:#fff;font-weight:600;cursor:pointer}
 
-.cheapest-tag{
-  display:inline-block;font-size:0.6rem;font-family:'Cinzel',serif;
-  letter-spacing:0.1em;padding:0.15rem 0.5rem;border-radius:4px;
-  background:rgba(74,140,92,0.3);color:#7ddb96;border:1px solid rgba(74,140,92,0.4);
-  margin-left:0.4rem;vertical-align:middle
+/* print */
+@media print{
+  .nav,.hero,#destinations,.mbar,footer,.s-actions,.link-btn,.opt-end a,.toast,.modal,.reset,#weather{display:none!important}
+  body{background:#fff}
+  .section{padding-top:0}
+  .results{grid-template-columns:1fr}
+  .summary{position:static;background:#fff;color:#000;box-shadow:none;border:1px solid #ccc}
+  .summary *{color:#000!important}
+  .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
+  .opt:not(.is-sel){display:none}
 }
-
-.book-btn{
-  display:inline-flex;align-items:center;gap:0.4rem;
-  padding:0.4rem 0.9rem;border-radius:8px;
-  background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);
-  color:var(--gold-light);font-size:0.75rem;font-weight:600;
-  text-decoration:none;transition:all 0.25s;cursor:pointer;font-family:'Outfit',sans-serif;
-  white-space:nowrap
-}
-.book-btn:hover{background:rgba(201,168,76,0.22);border-color:var(--gold);transform:translateY(-1px)}
-
-/* hotel row */
-.hotel-logo{display:inline-flex;align-items:center;gap:0.5rem;font-weight:600;color:var(--cream)}
-.hl-dot{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:900;font-family:'Cinzel',serif;flex-shrink:0}
-.hl-agoda{background:linear-gradient(135deg,#5e2d91,#e9446a);color:#fff}
-.hl-booking{background:linear-gradient(135deg,#003580,#0071c2);color:#fff}
-.hl-airbnb{background:linear-gradient(135deg,#ff385c,#e31c5f);color:#fff}
-.hl-hotels{background:linear-gradient(135deg,#c8102e,#e63946);color:#fff}
-
-/* subtotal rows */
-.sub-row{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:0.65rem 0;border-bottom:1px solid rgba(255,255,255,0.05)
-}
-.sub-row:last-of-type{border:none}
-.sub-label{color:rgba(245,239,224,0.55);font-size:0.86rem;display:flex;align-items:center;gap:0.5rem}
-.sub-label .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:0.5}
-.sub-val{font-weight:600;color:var(--cream);font-size:0.92rem}
-.sub-val.hi{color:var(--gold-light)}
-
-/* ===================== TOTAL CARD ===================== */
-.total-wrap{
-  background:linear-gradient(135deg,rgba(200,64,26,0.1) 0%,rgba(201,168,76,0.08) 45%,rgba(20,48,30,0.85) 100%);
-  border:2px solid rgba(201,168,76,0.4);border-radius:26px;
-  padding:2.5rem 2rem;text-align:center;margin-top:1.5rem;
-  box-shadow:var(--shadow-deep),0 0 50px rgba(201,168,76,0.08);
-  position:relative;overflow:hidden
-}
-.total-wrap::before{
-  content:'';position:absolute;top:-60%;left:-30%;
-  width:160%;height:200%;
-  background:radial-gradient(ellipse at center,rgba(201,168,76,0.06) 0%,transparent 60%);
-  pointer-events:none
-}
-.total-eyebrow{font-family:'Cinzel',serif;font-size:0.72rem;letter-spacing:0.35em;color:var(--gold);text-transform:uppercase;margin-bottom:0.5rem}
-.total-amounts{display:flex;justify-content:center;align-items:flex-start;gap:3rem;flex-wrap:wrap;margin:1rem 0}
-.ta-block{text-align:center}
-.ta-label{font-size:0.72rem;color:rgba(245,239,224,0.45);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.3rem;font-family:'Cinzel',serif}
-.ta-amount{
-  font-family:'Playfair Display',serif;font-size:clamp(1.6rem,5vw,2.5rem);
-  font-weight:900;line-height:1
-}
-.ta-amount.flight-col{color:#5bc4d8}
-.ta-amount.hotel-col{color:#a07aff}
-.ta-divider{color:rgba(201,168,76,0.3);font-size:2rem;align-self:center}
-.grand-total-num{
-  font-family:'Playfair Display',serif;
-  font-size:clamp(3rem,9vw,5rem);font-weight:900;
-  background:linear-gradient(135deg,var(--gold-light),var(--gold),var(--hornbill-orange));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  line-height:1;margin:0.5rem 0
-}
-.total-currency{font-family:'Cinzel',serif;font-size:0.9rem;color:var(--gold);letter-spacing:0.15em;margin-bottom:1rem}
-.tier-badge{
-  display:inline-block;padding:0.4rem 1.3rem;border-radius:50px;
-  font-size:0.72rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;font-family:'Cinzel',serif
-}
-.tb-opt{background:rgba(74,140,92,0.25);border:1px solid var(--jungle-light);color:var(--jungle-light)}
-.tb-com{background:rgba(42,122,142,0.25);border:1px solid var(--river);color:#5bc4d8}
-.tb-prem{background:rgba(201,168,76,0.18);border:1px solid var(--gold);color:var(--gold-light)}
-.total-disclaimer{font-size:0.68rem;color:rgba(245,239,224,0.3);line-height:1.6;margin-top:1.2rem}
-
-/* ===================== CALCULATE BTN ===================== */
-.calc-btn{
-  width:100%;padding:1.15rem;border:none;border-radius:18px;
-  font-family:'Cinzel',serif;font-size:1rem;font-weight:600;letter-spacing:0.18em;
-  cursor:pointer;color:var(--dark);
-  background:linear-gradient(135deg,var(--hornbill-red) 0%,var(--gold) 50%,var(--hornbill-orange) 100%);
-  background-size:200%;transition:all 0.4s;
-  box-shadow:0 8px 28px rgba(200,64,26,0.4);
-  position:relative;overflow:hidden;margin-top:0.3rem
-}
-.calc-btn:hover{background-position:right;transform:translateY(-3px);box-shadow:0 14px 36px rgba(200,64,26,0.55)}
-.calc-btn:active{transform:translateY(0)}
-
-/* ===================== RESULT SECTION ===================== */
-#result-section{opacity:0;transform:translateY(40px);transition:all 0.7s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none}
-#result-section.visible{opacity:1;transform:translateY(0);pointer-events:all}
-
-/* ===================== ORNAMENT ===================== */
-.orn{text-align:center;color:rgba(201,168,76,0.35);letter-spacing:1em;margin:1.6rem 0;font-size:0.9rem}
-
-/* ===================== DESTINATION BADGE ===================== */
-.dest-badge{
-  display:inline-flex;align-items:center;gap:0.5rem;
-  padding:0.4rem 1.1rem;border-radius:50px;
-  background:rgba(74,140,92,0.18);border:1px solid rgba(74,140,92,0.35);
-  font-size:0.78rem;color:var(--jungle-light);margin-bottom:1.2rem;font-weight:500
-}
-
-/* SECTION WITHIN RESULT */
-.r-section{margin:1.4rem 0}
-.r-head{
-  display:flex;align-items:center;gap:0.7rem;
-  padding-bottom:0.7rem;border-bottom:1px solid rgba(201,168,76,0.12);margin-bottom:0.8rem
-}
-.r-head-icon{font-size:1.2rem}
-.r-head-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--cream)}
-.r-head-amt{margin-left:auto;font-size:1.05rem;font-weight:700;color:var(--gold-light)}
-
-/* selected airline/hotel highlight row */
-.selected-row{background:rgba(201,168,76,0.06)!important}
-.selected-row td{border-color:transparent}
-
-/* ===================== FOOTER ===================== */
-footer{text-align:center;padding:2rem 1rem 3rem;position:relative;z-index:1;color:rgba(245,239,224,0.28);font-size:0.73rem;letter-spacing:0.08em}
-footer strong{color:var(--gold);font-family:'Cinzel',serif}
-.f-orn{margin-bottom:0.8rem;color:rgba(201,168,76,0.3);letter-spacing:0.8em}
-
-/* ANIMATIONS */
-.fade-in{opacity:0;transform:translateY(22px);animation:fiu 0.65s ease forwards}
-@keyframes fiu{to{opacity:1;transform:none}}
-.fade-in:nth-child(1){animation-delay:0.05s}
-.fade-in:nth-child(2){animation-delay:0.15s}
-.fade-in:nth-child(3){animation-delay:0.25s}
-.fade-in:nth-child(4){animation-delay:0.35s}
-@keyframes pulsegold{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0.5)}60%{box-shadow:0 0 0 16px rgba(201,168,76,0)}}
-.pulse{animation:pulsegold 1s ease}
-
-/* RESPONSIVE */
-@media(max-width:480px){
-  .card{padding:1.3rem}
-  .total-wrap{padding:1.6rem 1.2rem}
-  .compare-table th,.compare-table td{padding:0.55rem 0.5rem;font-size:0.78rem}
-  .book-btn{padding:0.35rem 0.6rem;font-size:0.7rem}
-}
-
-/* ===================== DISCLAIMER BANNER ===================== */
-.disclaimer-banner{
-  display:flex;align-items:center;justify-content:space-between;gap:1rem;
-  background:rgba(200,64,26,0.08);border:1px solid rgba(200,64,26,0.25);
-  border-radius:14px;padding:0.9rem 1.2rem;margin-bottom:1.4rem;
-  flex-wrap:wrap
-}
-.db-text{font-size:0.78rem;color:rgba(245,239,224,0.6);line-height:1.5;flex:1;min-width:180px}
-.db-text strong{color:rgba(240,204,110,0.85);font-weight:600}
-.db-btn{
-  display:inline-flex;align-items:center;gap:0.5rem;
-  padding:0.5rem 1.1rem;border-radius:10px;cursor:pointer;
-  background:rgba(200,64,26,0.15);border:1px solid rgba(200,64,26,0.4);
-  color:#f08060;font-size:0.76rem;font-weight:600;font-family:'Cinzel',serif;
-  letter-spacing:0.1em;text-transform:uppercase;transition:all 0.25s;white-space:nowrap;
-  flex-shrink:0
-}
-.db-btn:hover{background:rgba(200,64,26,0.28);border-color:rgba(200,64,26,0.7);transform:translateY(-1px)}
-
-/* ===================== MODAL ===================== */
-.modal-overlay{
-  position:fixed;inset:0;z-index:1000;
-  background:rgba(0,0,0,0.82);backdrop-filter:blur(6px);
-  display:flex;align-items:center;justify-content:center;
-  padding:1.5rem;opacity:0;pointer-events:none;
-  transition:opacity 0.35s ease
-}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal-box{
-  background:linear-gradient(160deg,rgba(18,40,25,0.98) 0%,rgba(8,15,10,0.99) 100%);
-  border:1px solid rgba(201,168,76,0.3);border-radius:24px;
-  max-width:620px;width:100%;max-height:88vh;overflow-y:auto;
-  box-shadow:0 32px 80px rgba(0,0,0,0.7),0 0 60px rgba(200,64,26,0.08);
-  transform:translateY(28px) scale(0.97);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
-  position:relative
-}
-.modal-overlay.open .modal-box{transform:translateY(0) scale(1)}
-.modal-box::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--hornbill-red),var(--gold),var(--hornbill-orange));
-  border-radius:24px 24px 0 0
-}
-.modal-head{
-  padding:2rem 2rem 1rem;display:flex;align-items:flex-start;gap:1rem;
-  border-bottom:1px solid rgba(201,168,76,0.12)
-}
-.modal-icon{
-  width:48px;height:48px;border-radius:14px;
-  background:linear-gradient(135deg,rgba(200,64,26,0.3),rgba(201,168,76,0.2));
-  border:1px solid rgba(200,64,26,0.35);
-  display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0
-}
-.modal-title{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;color:var(--cream);margin-bottom:0.3rem}
-.modal-subtitle{font-size:0.76rem;color:rgba(245,239,224,0.45);letter-spacing:0.05em}
-.modal-close{
-  margin-left:auto;width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);
-  background:rgba(255,255,255,0.05);color:rgba(245,239,224,0.5);font-size:1.1rem;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:all 0.2s;flex-shrink:0
-}
-.modal-close:hover{background:rgba(200,64,26,0.2);border-color:rgba(200,64,26,0.4);color:var(--cream)}
-.modal-body{padding:1.5rem 2rem 2rem}
-.modal-section{margin-bottom:1.4rem}
-.modal-section:last-child{margin-bottom:0}
-.ms-title{
-  font-family:'Cinzel',serif;font-size:0.68rem;font-weight:600;
-  letter-spacing:0.25em;text-transform:uppercase;
-  color:var(--gold);margin-bottom:0.6rem;
-  display:flex;align-items:center;gap:0.6rem
-}
-.ms-title::after{content:'';flex:1;height:1px;background:rgba(201,168,76,0.2)}
-.ms-text{font-size:0.84rem;color:rgba(245,239,224,0.68);line-height:1.75}
-.ms-text strong{color:rgba(245,239,224,0.88);font-weight:600}
-.ms-text a{color:var(--gold-light);text-decoration:none}
-.ms-text a:hover{text-decoration:underline}
-.highlight-box{
-  background:rgba(200,64,26,0.08);border:1px solid rgba(200,64,26,0.2);
-  border-left:3px solid var(--hornbill-red);
-  border-radius:0 10px 10px 0;padding:0.9rem 1rem;
-  font-size:0.82rem;color:rgba(245,239,224,0.72);line-height:1.7;margin-top:0.6rem
-}
-.info-box{
-  background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.2);
-  border-left:3px solid var(--gold);
-  border-radius:0 10px 10px 0;padding:0.9rem 1rem;
-  font-size:0.82rem;color:rgba(245,239,224,0.72);line-height:1.7;margin-top:0.6rem
-}
-.modal-footer-note{
-  margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,0.06);
-  font-size:0.72rem;color:rgba(245,239,224,0.3);text-align:center;line-height:1.6
-}
-.modal-accept-btn{
-  display:block;width:100%;margin-top:1.5rem;padding:0.85rem;
-  border:none;border-radius:14px;cursor:pointer;
-  background:linear-gradient(135deg,var(--jungle-mid),var(--jungle-light));
-  color:var(--white);font-family:'Cinzel',serif;font-size:0.85rem;
-  font-weight:600;letter-spacing:0.15em;transition:all 0.3s;
-  box-shadow:0 6px 20px rgba(42,90,60,0.35)
-}
-.modal-accept-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(42,90,60,0.5)}
-@media(max-width:480px){.modal-head,.modal-body{padding-left:1.3rem;padding-right:1.3rem}}
-
-/* TOOLTIP */
-.tip{position:relative;cursor:help}
-.tip::after{
-  content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
-  background:rgba(10,22,15,0.95);border:1px solid var(--border-gold);color:var(--cream);
-  font-size:0.7rem;padding:0.4rem 0.7rem;border-radius:8px;white-space:nowrap;
-  opacity:0;pointer-events:none;transition:opacity 0.2s;z-index:10;font-style:normal
-}
-.tip:hover::after{opacity:1}
 </style>
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
-<header>
-  <div class="header-bg"></div>
-
-  <!-- SVG HORNBILL — Rhinoceros Hornbill, Sarawak's state bird -->
-  <svg class="hornbill-logo" viewBox="0 0 120 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Body -->
+<!-- Shared hornbill artwork (Rhinoceros Hornbill, Sarawak's state bird) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="hornbill" viewBox="4 34 108 60">
     <ellipse cx="58" cy="68" rx="26" ry="18" fill="#1a1a1a"/>
-    <!-- Wing upper -->
     <path d="M32 60 Q10 48 8 72 Q18 78 38 74 Z" fill="#111"/>
-    <!-- Wing feathers -->
     <path d="M32 60 Q12 52 10 64" stroke="#333" stroke-width="1.5" fill="none"/>
-    <path d="M32 63 Q14 57 12 69" stroke="#333" stroke-width="1" fill="none"/>
-    <!-- Tail -->
     <path d="M78 70 Q100 65 108 72 Q98 80 78 78 Z" fill="#111"/>
     <path d="M78 73 Q104 70 108 72" stroke="#fff" stroke-width="1.2" fill="none"/>
-    <path d="M80 76 Q104 74 107 75" stroke="#fff" stroke-width="0.8" fill="none"/>
-    <!-- Chest white patch -->
     <ellipse cx="52" cy="72" rx="10" ry="7" fill="#e8e0cc"/>
-    <!-- Head -->
     <circle cx="42" cy="52" r="14" fill="#1a1a1a"/>
-    <!-- Eye -->
-    <circle cx="38" cy="50" r="4" fill="#e8a800"/>
-    <circle cx="37" cy="49.5" r="2" fill="#111"/>
-    <circle cx="36.2" cy="48.8" r="0.6" fill="#fff"/>
-    <!-- Beak base -->
+    <circle cx="38" cy="50" r="4" fill="#e8a800"/><circle cx="37" cy="49.5" r="2" fill="#111"/><circle cx="36.2" cy="48.8" r="0.6" fill="#fff"/>
     <path d="M28 52 Q20 50 16 54 Q18 58 26 56 Z" fill="#c8401a"/>
-    <!-- CASQUE (the iconic hornbill horn) — curved red-orange ridge on top of beak -->
     <path d="M28 52 Q32 44 38 42 Q44 40 46 44 Q44 48 38 48 Q34 50 30 52 Z" fill="#e06000"/>
     <path d="M30 48 Q34 42 40 41" stroke="#f0a800" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-    <!-- Casque top highlight -->
-    <path d="M32 46 Q36 41 41 40" stroke="#ffd060" stroke-width="0.8" fill="none" stroke-linecap="round"/>
-    <!-- Red throat patch -->
     <ellipse cx="42" cy="58" rx="5" ry="3.5" fill="#c8401a"/>
-    <!-- White cheek -->
-    <ellipse cx="40" cy="50" rx="4" ry="3" fill="#d4c8a0" opacity="0.4"/>
-    <!-- Wing tip white bars -->
     <path d="M20 68 Q28 66 36 72" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-    <path d="M18 72 Q26 70 34 76" stroke="#fff" stroke-width="1" fill="none" stroke-linecap="round"/>
-    <!-- Small branch/perch hint -->
-    <path d="M38 84 Q58 88 80 84" stroke="#5a3a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <!-- Feet -->
-    <path d="M48 84 L46 90 M50 84 L50 91 M52 84 L54 90" stroke="#5a3a1a" stroke-width="1.5" stroke-linecap="round"/>
-    <path d="M64 83 L62 89 M66 83 L66 90 M68 83 L70 89" stroke="#5a3a1a" stroke-width="1.5" stroke-linecap="round"/>
-  </svg>
+    <path d="M38 84 Q58 88 80 84" stroke="#7a5a3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </symbol>
+</svg>
 
-  <h1 class="brand-name">SarawakGo</h1>
-  <p class="brand-tagline">Land of the Hornbill · Travel Cost Estimator</p>
-  <div class="header-rule"><span>✦ ✦ ✦</span></div>
+<header class="nav">
+  <a class="brand" href="#top" aria-label="SarawakGo home"><svg aria-hidden="true"><use href="#hornbill"/></svg><span>Sarawak<b>Go</b></span></a>
+  <nav class="nav-links" aria-label="Sections">
+    <a href="#plan">Plan</a><a href="#destinations">Destinations</a><a href="#results">Trip cost</a><a href="#weather">Weather</a>
+  </nav>
+  <button class="nav-btn" onclick="openDisclaimer()">Disclaimer</button>
 </header>
 
-<div class="container">
-
-  <!-- DESTINATION CARD -->
-  <div class="card fade-in">
-    <div class="sec-label">Your Journey</div>
-    <div class="card-head">
-      <div class="c-icon dest">🗺️</div>
-      <div><div class="c-title">Origin & Destination</div><div class="c-sub">Where are you flying from, and where in Sarawak?</div></div>
-    </div>
-    <div class="form-row">
-      <div class="fg">
-        <label>Flying From</label>
-        <div class="sw"><select id="origin">
-          <option value="">— Select Origin —</option>
-          <option value="KUL">Kuala Lumpur (KUL)</option>
-          <option value="JHB">Johor Bahru (JHB)</option>
-          <option value="PEN">Penang (PEN)</option>
-          <option value="KBR">Kota Bharu (KBR)</option>
-          <option value="BKI">Kota Kinabalu (BKI)</option>
-          <option value="LBU">Labuan (LBU)</option>
-        </select></div>
-      </div>
-      <div class="fg">
-        <label>Destination in Sarawak</label>
-        <div class="sw"><select id="destination">
-          <option value="">— Select Destination —</option>
-          <option value="KCH">Kuching (KCH)</option>
-          <option value="MYY">Miri (MYY)</option>
-          <option value="SBW">Sibu (SBW)</option>
-          <option value="BTU">Bintulu (BTU)</option>
-          <option value="LMN">Limbang (LMN)</option>
-          <option value="MKM">Mukah (MKM)</option>
-        </select></div>
-      </div>
-    </div>
-    <div class="form-row" style="margin-top:1rem">
-      <div class="fg">
-        <label>Check-In Date</label>
-        <input type="date" id="checkin"/>
-      </div>
-      <div class="fg">
-        <label>Check-Out Date</label>
-        <input type="date" id="checkout"/>
-      </div>
-    </div>
-    <div class="form-row" style="margin-top:1rem">
-      <div class="fg">
-        <label>Travellers</label>
-        <div class="sw"><select id="travellers">
-          <option value="1">1 Person</option>
-          <option value="2">2 Persons</option>
-          <option value="3">3 Persons</option>
-          <option value="4">4 Persons</option>
-          <option value="5">5 Persons</option>
-          <option value="6">6 Persons</option>
-        </select></div>
-      </div>
-      <div class="fg">
-        <label>Rooms</label>
-        <div class="sw"><select id="rooms">
-          <option value="1">1 Room</option>
-          <option value="2">2 Rooms</option>
-          <option value="3">3 Rooms</option>
-          <option value="4">4 Rooms</option>
-        </select></div>
-      </div>
-    </div>
-    <div id="npill" style="display:none"><span class="nights-pill">🌙 <span id="ncnt">0</span> nights</span></div>
-  </div>
-
-  <!-- TIER CARD -->
-  <div class="card fade-in">
-    <div class="sec-label">Travel Style</div>
-    <div class="card-head">
-      <div class="c-icon tier">⭐</div>
-      <div><div class="c-title">Select Your Travel Tier</div><div class="c-sub">Affects airline class, hotel category & estimated cost</div></div>
-    </div>
-    <div class="tier-grid">
-      <div class="tier-card opt selected" onclick="selectTier('opt',this)">
-        <div class="tc-bg"></div>
-        <span class="ti">🌿</span>
-        <div class="tn">Optimal Budget</div>
-        <div class="td">Budget carriers, clean guesthouses. Stretch every ringgit.</div>
-      </div>
-      <div class="tier-card com" onclick="selectTier('com',this)">
-        <div class="tc-bg"></div>
-        <span class="ti">✈️</span>
-        <div class="tn">Comfort Travel</div>
-        <div class="td">Mid-tier airlines, 3–4★ hotels. Relaxed &amp; reliable.</div>
-      </div>
-      <div class="tier-card prem" onclick="selectTier('prem',this)">
-        <div class="tc-bg"></div>
-        <span class="ti">👑</span>
-        <div class="tn">Comfort+ Travel</div>
-        <div class="td">Business/premium, 5★ stays. Sarawak in full luxury.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- DISCLAIMER BANNER -->
-  <div class="disclaimer-banner fade-in">
-    <div class="db-text">⚠️ <strong>Estimates only.</strong> All prices shown are reference figures based on historical averages — not live data. Always verify on the airline or hotel platform before booking.</div>
-    <button class="db-btn" onclick="openDisclaimer()">📋 Full Disclaimer</button>
-  </div>
-
-  <!-- BUTTON -->
-  <button class="calc-btn fade-in" onclick="calculate()">✦ &nbsp; CALCULATE &amp; COMPARE &nbsp; ✦</button>
-
-  <!-- RESULT -->
-  <div id="result-section">
-    <div class="orn">✦ &nbsp; ✦ &nbsp; ✦</div>
-
-    <!-- FLIGHT RESULT CARD -->
-    <div class="card" id="flight-card">
-      <div class="sec-label">Flight Comparison</div>
-      <div class="card-head">
-        <div class="c-icon fly">✈️</div>
-        <div><div class="c-title">Airlines to <span id="r-dest-city">—</span></div><div class="c-sub" id="r-route-sub">—</div></div>
-      </div>
-      <div id="airline-table-wrap">
-        <table class="compare-table" id="airline-table">
-          <thead>
-            <tr>
-              <th>Airline</th>
-              <th>Est. Fare / pax</th>
-              <th>Total (×<span id="r-pax-head">1</span> pax)</th>
-              <th>Book</th>
-            </tr>
-          </thead>
-          <tbody id="airline-tbody"></tbody>
-        </table>
-      </div>
-      <div class="r-section">
-        <div class="sub-row"><span class="sub-label"><span class="dot"></span>Selected airline fare total</span><span class="sub-val hi" id="r-flight-sel">RM 0</span></div>
-        <div class="sub-row"><span class="sub-label"><span class="dot"></span>Airport taxes &amp; surcharges</span><span class="sub-val" id="r-tax">RM 0</span></div>
-        <div class="sub-row"><span class="sub-label"><span class="dot"></span>✈️ Flight Subtotal</span><span class="sub-val hi" id="r-flight-sub">RM 0</span></div>
+<section class="hero" id="top">
+  <svg class="hero-scene" viewBox="0 0 1440 400" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <circle cx="1180" cy="120" r="70" fill="#e8c66d" opacity=".12"/>
+    <path d="M0 230 C160 150 300 190 420 150 C560 100 700 180 840 140 C1000 95 1120 170 1260 130 C1350 105 1400 120 1440 115 V400 H0Z" fill="#1d5440" opacity=".55"/>
+    <path d="M0 290 C180 230 320 270 480 225 C640 180 760 250 920 215 C1080 180 1220 240 1440 200 V400 H0Z" fill="#164536"/>
+    <path d="M0 345 C260 320 420 360 640 335 C860 310 1040 350 1240 330 C1330 322 1400 330 1440 326 V352 C1380 360 1320 352 1240 358 C1040 376 860 340 640 362 C420 386 260 348 0 372Z" fill="#2b6f8f" opacity=".55"/>
+    <path d="M0 372 C260 348 420 386 640 362 C860 340 1040 376 1240 358 C1320 352 1380 360 1440 352 V400 H0Z" fill="#0f2e22"/>
+  </svg>
+  <div class="hero-inner">
+    <div>
+      <svg class="hero-bird" aria-hidden="true"><use href="#hornbill"/></svg>
+      <div class="eyebrow">Land of the Hornbill · Trip cost planner</div>
+      <h1>Plan your Sarawak trip. <em>Know the cost before you go.</em></h1>
+      <p class="hero-lead">Compare estimated flights and stays to six Sarawak destinations, add your daily spending and check the weather. Then share your budget. It's free and you don't need to sign up.</p>
+      <div class="hero-stats">
+        <div><b>6</b>destinations</div>
+        <div><b>4</b>airlines compared</div>
+        <div><b>4</b>hotel platforms</div>
       </div>
     </div>
 
-    <!-- HOTEL RESULT CARD -->
-    <div class="card" id="hotel-card">
-      <div class="sec-label">Hotel Comparison</div>
-      <div class="card-head">
-        <div class="c-icon htl">🏨</div>
-        <div><div class="c-title">Hotels in <span id="r-dest-city2">—</span></div><div class="c-sub" id="r-hotel-sub-title">—</div></div>
-      </div>
-      <div id="hotel-table-wrap">
-        <table class="compare-table" id="hotel-table">
-          <thead>
-            <tr>
-              <th>Platform</th>
-              <th>Rate / night / room</th>
-              <th>Total (<span id="r-rooms-head">1</span>rm × <span id="r-nights-head">1</span>nt)</th>
-              <th>Book</th>
-            </tr>
-          </thead>
-          <tbody id="hotel-tbody"></tbody>
-        </table>
-      </div>
-      <div class="r-section">
-        <div class="sub-row"><span class="sub-label"><span class="dot"></span>Selected hotel base cost</span><span class="sub-val hi" id="r-hotel-sel">RM 0</span></div>
-        <div class="sub-row"><span class="sub-label"><span class="dot"></span>Service charge (10%)</span><span class="sub-val" id="r-svc">RM 0</span></div>
-        <div class="sub-row"><span class="sub-label"><span class="dot"></span>🏨 Hotel Subtotal</span><span class="sub-val hi" id="r-hotel-sub">RM 0</span></div>
-      </div>
-    </div>
-
-    <!-- WEATHER CARD -->
-    <div class="card" id="weather-card" style="display:none">
-      <div class="sec-label">Trip Forecast</div>
-      <div class="card-head">
-        <div class="c-icon" style="background:linear-gradient(135deg,#1a3a6e,#2a7aae)">🌦️</div>
-        <div><div class="c-title">Weather in <span id="w-dest-city">—</span></div><div class="c-sub" id="w-sub">—</div></div>
-      </div>
-      <div id="weather-body">
-        <div class="ms-text" style="color:rgba(245,239,224,0.45)">Loading forecast…</div>
-      </div>
-      <div style="font-size:0.62rem;color:rgba(245,239,224,0.3);margin-top:0.8rem">Live data via <a href="https://open-meteo.com" target="_blank" rel="noopener" style="color:rgba(201,168,76,0.5)">Open-Meteo</a> — free, no API key required.</div>
-    </div>
-
-    <!-- TOTAL CARD -->
-    <div class="total-wrap" id="total-wrap">
-      <div class="total-eyebrow">✦ Estimated Grand Total ✦</div>
-      <div class="dest-badge" style="margin:0.5rem auto 1rem;display:inline-flex"><span>📍</span><span id="r-trip-label">—</span></div>
-      <div class="total-amounts">
-        <div class="ta-block">
-          <div class="ta-label">✈️ Flight</div>
-          <div class="ta-amount flight-col" id="ta-flight">RM 0</div>
-        </div>
-        <div class="ta-divider">+</div>
-        <div class="ta-block">
-          <div class="ta-label">🏨 Hotel</div>
-          <div class="ta-amount hotel-col" id="ta-hotel">RM 0</div>
+    <form class="planner" id="plan" onsubmit="event.preventDefault();goResults()" novalidate>
+      <div class="planner-title">
+        <span>Plan your trip</span>
+        <div class="seg" role="radiogroup" aria-label="Trip type">
+          <label><input type="radio" name="tripType" value="return"><span>Return</span></label>
+          <label><input type="radio" name="tripType" value="oneway"><span>One-way</span></label>
         </div>
       </div>
-      <div class="grand-total-num" id="grand-num">RM 0</div>
-      <div class="total-currency">Malaysian Ringgit (MYR)</div>
-      <div id="fx-row" style="display:none;margin-top:0.6rem;font-size:0.8rem;color:rgba(245,239,224,0.6)">
-        ≈ <span id="fx-usd">—</span> &nbsp;·&nbsp; <span id="fx-sgd">—</span> &nbsp;·&nbsp; <span id="fx-gbp">—</span>
-        <div style="font-size:0.6rem;opacity:0.5;margin-top:0.25rem">Live exchange rate via Frankfurter.dev (ECB reference rates)</div>
+      <div class="pgrid">
+        <label class="fld"><span>Flying from</span><select id="origin"></select></label>
+        <label class="fld"><span>To (Sarawak)</span><select id="dest"></select></label>
+        <label class="fld"><span>Depart</span><input type="date" id="depart"></label>
+        <label class="fld"><span id="ret-label">Return</span><input type="date" id="ret"></label>
+        <div class="fld"><span id="pax-l">Travellers</span>
+          <div class="stepper" role="group" aria-labelledby="pax-l">
+            <button type="button" data-step="pax" data-d="-1" aria-label="Fewer travellers">−</button><output id="pax-o">2</output><button type="button" data-step="pax" data-d="1" aria-label="More travellers">+</button>
+          </div>
+        </div>
+        <div class="fld"><span id="rooms-l">Rooms</span>
+          <div class="stepper" role="group" aria-labelledby="rooms-l">
+            <button type="button" data-step="rooms" data-d="-1" aria-label="Fewer rooms">−</button><output id="rooms-o">1</output><button type="button" data-step="rooms" data-d="1" aria-label="More rooms">+</button>
+          </div>
+        </div>
       </div>
-      <span class="tier-badge" id="tier-badge">—</span>
-      <div class="total-disclaimer">
-        * Flight &amp; hotel prices are curated estimates based on average market rates as of 2026 — not live.<br>
-        Actual fares vary by date, availability &amp; promotions. Always verify before booking.<br>
-        Cheapest option is pre-selected; you may choose any airline or hotel above.
+      <div class="tiers" role="radiogroup" aria-label="Travel style">
+        <label><input type="radio" name="tier" value="opt"><span class="t"><b>🌿 Budget</b><small>Saver fares, guesthouses</small></span></label>
+        <label><input type="radio" name="tier" value="com"><span class="t"><b>✈️ Comfort</b><small>Flexi fares, 3–4★ hotels</small></span></label>
+        <label><input type="radio" name="tier" value="prem"><span class="t"><b>👑 Comfort+</b><small>Premium fares, 5★ stays</small></span></label>
       </div>
-    </div>
+      <div class="p-extra">
+        <label class="chk"><input type="checkbox" id="foreign"> Not a Malaysian citizen/PR <span title="Malaysia's tourism tax: RM10 per room per night for foreign guests">ⓘ</span></label>
+        <span class="nights" id="nights-pill"></span>
+      </div>
+      <div class="p-tip" id="room-tip" hidden><span id="room-tip-t"></span><button type="button" onclick="addRoom()">Add room</button></div>
+      <div class="p-msg" id="p-msg" role="alert"></div>
+      <button class="cta" type="submit">See my trip cost →</button>
+    </form>
   </div>
+</section>
 
-</div>
+<section class="section" id="destinations">
+  <div class="section-head">
+    <div><h2>Where in Sarawak?</h2><p>Tap a destination to plan around it. The fares shown are budget estimates from your departure city.</p></div>
+  </div>
+  <div class="dest-grid" id="dest-grid"></div>
+</section>
 
-<!-- FOOTER -->
+<section class="section" id="results">
+  <div class="section-head">
+    <div><h2>Your trip cost</h2><p id="trip-line">Fill in the planner above to see your estimate.</p></div>
+  </div>
+  <div id="empty" class="empty"><b>Almost there</b><span id="empty-t">Choose where you're flying from, your Sarawak destination and your dates.</span></div>
+
+  <div class="results" id="results-body" hidden>
+    <div>
+      <article class="card" id="flights">
+        <div class="card-h">
+          <div class="ic fly"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg></div>
+          <div><h3>Flights</h3><p id="fl-sub"></p></div>
+          <div class="amt" id="fl-amt"></div>
+        </div>
+        <div class="opts" id="fl-opts" role="radiogroup" aria-label="Choose an airline"></div>
+        <div class="lines" id="fl-lines"></div>
+        <div class="card-foot"><span id="fl-note"></span><a class="link-btn" id="gflights" target="_blank" rel="noopener">Check live fares on Google Flights ↗</a></div>
+      </article>
+
+      <article class="card" id="hotels">
+        <div class="card-h">
+          <div class="ic htl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21v-6h6v6M8 10h.01M12 10h.01M16 10h.01"/></svg></div>
+          <div><h3>Stay</h3><p id="ht-sub"></p></div>
+          <div class="amt" id="ht-amt"></div>
+        </div>
+        <div class="opts" id="ht-opts" role="radiogroup" aria-label="Choose a booking platform"></div>
+        <div class="lines" id="ht-lines"></div>
+      </article>
+
+      <article class="card" id="daily">
+        <div class="card-h">
+          <div class="ic day"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h4"/></svg></div>
+          <div><h3>Daily spending</h3><p id="dy-sub"></p></div>
+          <div class="amt" id="dy-amt"></div>
+        </div>
+        <div class="sliders">
+          <div><div class="sl-top"><b>🍜 Food &amp; drinks</b><span id="v-food"></span></div><input type="range" id="s-food" min="0" max="400" step="5" aria-label="Food per person per day"></div>
+          <div><div class="sl-top"><b>🚕 Local transport</b><span id="v-transport"></span></div><input type="range" id="s-transport" min="0" max="300" step="5" aria-label="Local transport per person per day"></div>
+          <div><div class="sl-top"><b>🎟️ Activities &amp; tours</b><span id="v-activities"></span></div><input type="range" id="s-activities" min="0" max="400" step="5" aria-label="Activities per person per day"></div>
+        </div>
+        <div class="card-foot"><span>Amounts are per person per day. Defaults match your travel style.</span><button class="reset" type="button" onclick="resetDaily()">Reset to defaults</button></div>
+      </article>
+
+      <article class="card" id="weather">
+        <div class="card-h">
+          <div class="ic wx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9z"/></svg></div>
+          <div><h3>Weather in <span id="wx-city"></span></h3><p id="wx-sub">Loading…</p></div>
+        </div>
+        <div id="wx-body"></div>
+        <p class="muted-s">Forecast data from <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a>.</p>
+      </article>
+    </div>
+
+    <aside class="summary" id="summary" aria-live="polite">
+      <div class="s-eyebrow">Estimated trip total</div>
+      <div class="s-route" id="s-route"></div>
+      <div class="s-total" id="s-total">RM 0</div>
+      <div class="s-pp" id="s-pp"></div>
+      <div class="s-chart">
+        <svg class="donut" viewBox="0 0 140 140" role="img" aria-label="Cost breakdown chart">
+          <circle cx="70" cy="70" r="52" stroke="rgba(255,255,255,.1)"/>
+          <g transform="rotate(-90 70 70)"><circle id="d-fl" cx="70" cy="70" r="52" stroke="#6cb6d6"/><circle id="d-ht" cx="70" cy="70" r="52" stroke="#b99ae0"/><circle id="d-dy" cx="70" cy="70" r="52" stroke="#e8c66d"/></g>
+        </svg>
+        <div class="legend">
+          <div><i style="background:#6cb6d6"></i><span>Flights</span><b id="l-fl"></b></div>
+          <div><i style="background:#b99ae0"></i><span>Stay</span><b id="l-ht"></b></div>
+          <div><i style="background:#e8c66d"></i><span>Daily spend</span><b id="l-dy"></b></div>
+        </div>
+      </div>
+      <div class="s-fx">
+        <div><span id="fx-val">—</span><small id="fx-src">Loading exchange rates…</small></div>
+        <label class="sr-only" for="ccy">Currency</label>
+        <select id="ccy"><option>USD</option><option>SGD</option><option>EUR</option><option>GBP</option><option>AUD</option><option>CNY</option><option>JPY</option></select>
+      </div>
+      <div class="s-actions">
+        <button type="button" onclick="shareLink()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>Share link</button>
+        <button type="button" onclick="copySummary()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy summary</button>
+        <button type="button" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/></svg>Print / PDF</button>
+      </div>
+      <p class="s-note">These are estimates based on 2026 average rates, not live prices. Always check the final price before you book. <button type="button" onclick="openDisclaimer()">Read the disclaimer</button></p>
+    </aside>
+  </div>
+</section>
+
+<div class="mbar" aria-hidden="true"><div><small>Estimated total</small><strong id="m-total">RM 0</strong></div><a href="#summary">Breakdown</a></div>
+
 <footer>
-  <div class="f-orn">✦ &nbsp; ✦ &nbsp; ✦</div>
-  <p>Crafted with ❤️ for the Land of the Hornbill, Sarawak</p>
-  <p style="margin-top:0.5rem">Built by <strong>AhChaiTrp</strong> · SarawakGo Travel Calculator © 2026</p>
-  <p style="margin-top:0.3rem;opacity:0.5;font-size:0.65rem">For Sarawak travel planning only · Estimates only — verify with providers</p>
+  <a class="brand" href="#top"><svg aria-hidden="true"><use href="#hornbill"/></svg><span>Sarawak<b>Go</b></span></a>
+  <p>Made with ❤️ for the Land of the Hornbill · Built by <strong>AhChaiTrp</strong>, Sarikei, Sarawak · © 2026</p>
+  <p>Not affiliated with any airline or booking platform. Estimates only, so verify prices with providers. <button onclick="openDisclaimer()">Disclaimer &amp; terms</button></p>
 </footer>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal" id="disclaimer" role="dialog" aria-modal="true" aria-labelledby="dz-t" onclick="if(event.target===this)closeDisclaimer()">
+  <div class="modal-box">
+    <div class="modal-head"><div><h2 id="dz-t">Disclaimer &amp; Terms of Use</h2><p>SarawakGo Trip Cost Planner · Effective 2026</p></div><button class="modal-x" onclick="closeDisclaimer()" aria-label="Close">✕</button></div>
+    <div class="modal-body">
+      <h4>1 · Estimation tool only</h4>
+      <p>SarawakGo is a free planning tool for trips to Sarawak, Malaysia. Flight fares, hotel rates, taxes and daily spending figures are <strong>reference estimates based on average market data</strong>. They are not live prices.</p>
+      <div class="callout">SarawakGo does not connect to any airline or hotel reservation system. Only the weather forecast (Open-Meteo) and exchange rates (Frankfurter, ECB reference rates) are fetched live.</div>
+      <h4>2 · No guarantee of accuracy</h4>
+      <p>Fares and room rates change constantly with demand, season, promotions and provider policy. Routes and schedules also change: some destinations, such as Limbang and Mukah, usually need a connecting flight. No warranty is given for the accuracy or completeness of any figure.</p>
+      <h4>3 · No liability</h4>
+      <p>AhChaiTrp and SarawakGo are not liable for any loss arising from reliance on these estimates. All booking decisions are made at your own risk. Verify every price with the provider before paying.</p>
+      <h4>4 · Third-party links</h4>
+      <p>Links to AirAsia, Malaysia Airlines, Batik Air, Firefly, Google Flights, Agoda, Booking.com, Airbnb and Hotels.com are provided for convenience only. SarawakGo is <strong>not affiliated with, endorsed by or paid by</strong> any of them. All trademarks belong to their owners.</p>
+      <h4>5 · Privacy</h4>
+      <p>Your trip details are saved only in your own browser (localStorage). Nothing is sent to SarawakGo. The weather and exchange-rate services receive only the destination coordinates and the currency codes.</p>
+      <div class="callout"><strong>In plain terms:</strong> use these numbers as a guide for your budget, and check the real price before you pay anything.</div>
+      <button class="modal-ok" onclick="closeDisclaimer()">I understand</button>
+    </div>
+  </div>
+</div>
+
 <script>
-/* ============================================================
-   DATA LAYER
-   All prices in RM (Malaysian Ringgit), one-way per person
-   Tiers: opt = Optimal Budget | com = Comfort | prem = Comfort+
-   Airlines: AA=AirAsia, MH=Malaysia Airlines, OD=Batik Air, FY=Firefly
-   ============================================================ */
+'use strict';
+/* ════════════════════════════════════════════════════════════
+   DATA — reference estimates in RM. Fares are one-way per person.
+   ════════════════════════════════════════════════════════════ */
+const ORIGINS = { KUL:'Kuala Lumpur', JHB:'Johor Bahru', PEN:'Penang', KBR:'Kota Bharu', BKI:'Kota Kinabalu', LBU:'Labuan' };
 
-const DEST_NAMES = {KCH:'Kuching',MYY:'Miri',SBW:'Sibu',BTU:'Bintulu',LMN:'Limbang',MKM:'Mukah'};
-const ORIGIN_NAMES = {KUL:'Kuala Lumpur',JHB:'Johor Bahru',PEN:'Penang',KBR:'Kota Bharu',BKI:'Kota Kinabalu',LBU:'Labuan'};
-const DEST_IATA = {KCH:'KCH',MYY:'MYY',SBW:'SBW',BTU:'BTU',LMN:'LMN',MKM:'MKM'};
-const ORIGIN_IATA = {KUL:'KUL',JHB:'JHB',PEN:'PEN',KBR:'KBR',BKI:'BKI',LBU:'LBU'};
-
-// Base fares per person (one-way, RM). Multiply ×2 for return if needed. Here we calc one-way.
-const FARES = {
-  KUL:{KCH:{AA:99,MH:199,OD:149,FY:null},MYY:{AA:129,MH:229,OD:179,FY:null},SBW:{AA:119,MH:219,OD:159,FY:null},BTU:{AA:139,MH:249,OD:189,FY:null},LMN:{AA:149,MH:269,OD:199,FY:null},MKM:{AA:109,MH:219,OD:159,FY:null}},
-  JHB:{KCH:{AA:109,MH:null,OD:159,FY:null},MYY:{AA:139,MH:null,OD:189,FY:null},SBW:{AA:129,MH:null,OD:169,FY:null},BTU:{AA:149,MH:null,OD:199,FY:null},LMN:{AA:159,MH:null,OD:209,FY:null},MKM:{AA:119,MH:null,OD:169,FY:null}},
-  PEN:{KCH:{AA:119,MH:209,OD:169,FY:null},MYY:{AA:149,MH:239,OD:199,FY:null},SBW:{AA:139,MH:229,OD:179,FY:null},BTU:{AA:155,MH:255,OD:199,FY:null},LMN:{AA:169,MH:265,OD:209,FY:null},MKM:{AA:129,MH:239,OD:179,FY:null}},
-  KBR:{KCH:{AA:124,MH:214,OD:174,FY:null},MYY:{AA:154,MH:244,OD:204,FY:null},SBW:{AA:144,MH:234,OD:184,FY:null},BTU:{AA:160,MH:260,OD:204,FY:null},LMN:{AA:175,MH:275,OD:215,FY:null},MKM:{AA:135,MH:244,OD:184,FY:null}},
-  BKI:{KCH:{AA:89,MH:179,OD:139,FY:69},MYY:{AA:69,MH:149,OD:109,FY:55},SBW:{AA:79,MH:169,OD:119,FY:65},BTU:{AA:75,MH:159,OD:115,FY:null},LMN:{AA:85,MH:175,OD:125,FY:70},MKM:{AA:79,MH:165,OD:119,FY:null}},
-  LBU:{KCH:{AA:109,MH:null,OD:149,FY:89},MYY:{AA:85,MH:null,OD:119,FY:65},SBW:{AA:95,MH:null,OD:135,FY:75},BTU:{AA:89,MH:null,OD:125,FY:null},LMN:{AA:65,MH:null,OD:95,FY:55},MKM:{AA:95,MH:null,OD:129,FY:null}},
+const DESTS = {
+  KCH:{ name:'Kuching', tagline:'Cat City & cultural capital', lat:1.5533, lon:110.3592,
+    hl:['Sarawak Cultural Village','Bako National Park','Semenggoh orangutans','Waterfront'], food:'Sarawak laksa, kolo mee',
+    art:'linear-gradient(135deg,#1f5a43,#2b6f8f)' },
+  MYY:{ name:'Miri', tagline:'Oil town & gateway to Mulu', lat:4.3995, lon:113.9915,
+    hl:['Niah Caves','Lambir Hills','Canada Hill','Gateway to Mulu'], food:'Fresh seafood, Bario rice',
+    art:'linear-gradient(135deg,#2b6f8f,#4a8fa8)' },
+  SBW:{ name:'Sibu', tagline:'Heart of the Rajang River', lat:2.2872, lon:111.8305,
+    hl:['Rajang River','Central Market','Tua Pek Kong pagoda','Boats to Kapit'], food:'Kampua mee, kompia',
+    art:'linear-gradient(135deg,#7a4f2e,#b5703a)' },
+  BTU:{ name:'Bintulu', tagline:'Beaches & Similajau', lat:3.1667, lon:113.0333,
+    hl:['Similajau National Park','Tanjung Batu beach','Tamu Bintulu'], food:'Belacan Bintulu, seafood',
+    art:'linear-gradient(135deg,#2f7d55,#5aa36f)' },
+  LMN:{ name:'Limbang', tagline:'Northern frontier town', lat:4.7500, lon:115.0000,
+    hl:['Limbang Regional Museum','End of Headhunters\' Trail','Riverside tamu'], food:'Local tamu produce',
+    art:'linear-gradient(135deg,#5b3f7a,#8a5fb0)', connect:true },
+  MKM:{ name:'Mukah', tagline:'Melanau heartland', lat:2.8996, lon:112.0764,
+    hl:['Kaul Festival (April)','Lamin Dana','Tellian village'], food:'Umai, sago delicacies',
+    art:'linear-gradient(135deg,#a8452a,#d4702a)', connect:true },
 };
 
-// Tier multiplier applied on top of base fare
-const TIER_MULT = {opt:1.0,com:1.7,prem:3.2};
-// Airport tax per person
-const AIR_TAX = {opt:38,com:58,prem:88};
+const FARES = {
+  KUL:{KCH:{AK:99,MH:199,OD:149},MYY:{AK:129,MH:229,OD:179},SBW:{AK:119,MH:219,OD:159},BTU:{AK:139,MH:249,OD:189},LMN:{AK:149,MH:269,OD:199},MKM:{AK:109,MH:219,OD:159}},
+  JHB:{KCH:{AK:109,OD:159},MYY:{AK:139,OD:189},SBW:{AK:129,OD:169},BTU:{AK:149,OD:199},LMN:{AK:159,OD:209},MKM:{AK:119,OD:169}},
+  PEN:{KCH:{AK:119,MH:209,OD:169},MYY:{AK:149,MH:239,OD:199},SBW:{AK:139,MH:229,OD:179},BTU:{AK:155,MH:255,OD:199},LMN:{AK:169,MH:265,OD:209},MKM:{AK:129,MH:239,OD:179}},
+  KBR:{KCH:{AK:124,MH:214,OD:174},MYY:{AK:154,MH:244,OD:204},SBW:{AK:144,MH:234,OD:184},BTU:{AK:160,MH:260,OD:204},LMN:{AK:175,MH:275,OD:215},MKM:{AK:135,MH:244,OD:184}},
+  BKI:{KCH:{AK:89,MH:179,OD:139,FY:69},MYY:{AK:69,MH:149,OD:109,FY:55},SBW:{AK:79,MH:169,OD:119,FY:65},BTU:{AK:75,MH:159,OD:115},LMN:{AK:85,MH:175,OD:125,FY:70},MKM:{AK:79,MH:165,OD:119}},
+  LBU:{KCH:{AK:109,OD:149,FY:89},MYY:{AK:85,OD:119,FY:65},SBW:{AK:95,OD:135,FY:75},BTU:{AK:89,OD:125},LMN:{AK:65,OD:95,FY:55},MKM:{AK:95,OD:129}},
+};
 
-// Hotel nightly rates per room (RM) per destination
+const TIERS = {
+  opt: { label:'Optimal Budget', short:'Budget', mult:1.0, tax:38, hotelTax:0.08, daily:{food:45, transport:20, activities:25} },
+  com: { label:'Comfort Travel', short:'Comfort', mult:1.7, tax:58, hotelTax:0.188, daily:{food:90, transport:50, activities:60} },
+  prem:{ label:'Comfort+ Travel', short:'Comfort+', mult:3.2, tax:88, hotelTax:0.188, daily:{food:180, transport:120, activities:150} },
+};
+const TOURISM_TAX = 10; // RM per room per night, foreign guests (Tourism Tax Act 2017)
+
 const HOTEL_RATES = {
   KCH:{agoda:{opt:75,com:175,prem:420},booking:{opt:80,com:185,prem:440},airbnb:{opt:65,com:155,prem:380},hotels:{opt:85,com:195,prem:460}},
   MYY:{agoda:{opt:70,com:160,prem:390},booking:{opt:75,com:168,prem:408},airbnb:{opt:58,com:145,prem:350},hotels:{opt:80,com:178,prem:420}},
@@ -762,385 +531,386 @@ const HOTEL_RATES = {
   MKM:{agoda:{opt:50,com:118,prem:290},booking:{opt:55,com:125,prem:305},airbnb:{opt:40,com:100,prem:260},hotels:{opt:58,com:135,prem:318}},
 };
 
-// Airline metadata
 const AIRLINES = [
-  {id:'AA',name:'AirAsia',code:'AA',cls:'al-airasia',tier:{opt:true,com:false,prem:false},url:(o,d,dt)=>`https://www.airasia.com/flights/search?origin=${o}&destination=${d}&departDate=${dt}&adult=1`},
-  {id:'MH',name:'Malaysia Airlines',code:'MH',cls:'al-mas',tier:{opt:false,com:true,prem:true},url:(o,d,dt)=>`https://www.malaysiaairlines.com/my/en/flight-search.html?org=${o}&dest=${d}&depart=${dt}`},
-  {id:'OD',name:'Batik Air',code:'OD',cls:'al-batik',tier:{opt:true,com:true,prem:false},url:(o,d,dt)=>`https://www.batikair.com/en/plan/book?origin=${o}&destination=${d}&date=${dt}`},
-  {id:'FY',name:'Firefly',code:'FY',cls:'al-firefly',tier:{opt:true,com:false,prem:false},url:(o,d,dt)=>`https://www.fireflyz.com.my/book-flights?from=${o}&to=${d}&date=${dt}`},
+  { id:'AK', name:'AirAsia', cls:'al-ak', site:'https://www.airasia.com' },
+  { id:'MH', name:'Malaysia Airlines', cls:'al-mh', site:'https://www.malaysiaairlines.com' },
+  { id:'OD', name:'Batik Air', cls:'al-od', site:'https://www.batikair.com' },
+  { id:'FY', name:'Firefly', cls:'al-fy', site:'https://www.fireflyz.com.my' },
 ];
-
-// Hotel metadata
+const enc = encodeURIComponent;
 const HOTELS = [
-  {id:'agoda',name:'Agoda',code:'AG',cls:'hl-agoda',url:(dest,ci,co,rooms)=>`https://www.agoda.com/search?city=${dest}&checkIn=${ci}&checkOut=${co}&rooms=${rooms}`},
-  {id:'booking',name:'Booking.com',code:'BK',cls:'hl-booking',url:(dest,ci,co,rooms)=>`https://www.booking.com/searchresults.html?ss=${dest}&checkin=${ci}&checkout=${co}&no_rooms=${rooms}`},
-  {id:'airbnb',name:'Airbnb',code:'AB',cls:'hl-airbnb',url:(dest,ci,co,rooms)=>`https://www.airbnb.com/s/${dest}/homes?checkin=${ci}&checkout=${co}&adults=2`},
-  {id:'hotels',name:'Hotels.com',code:'HC',cls:'hl-hotels',url:(dest,ci,co,rooms)=>`https://www.hotels.com/search.do?q-destination=${dest}&q-check-in=${ci}&q-check-out=${co}&q-rooms=${rooms}`},
+  { id:'agoda', name:'Agoda', code:'AG', cls:'hl-agoda',
+    url:t=>`https://www.agoda.com/search?textToSearch=${enc(t.city+', Sarawak')}&checkIn=${t.depart}&checkOut=${t.ret}&rooms=${t.rooms}&adults=${t.pax}` },
+  { id:'booking', name:'Booking.com', code:'BK', cls:'hl-booking',
+    url:t=>`https://www.booking.com/searchresults.html?ss=${enc(t.city+', Sarawak, Malaysia')}&checkin=${t.depart}&checkout=${t.ret}&group_adults=${t.pax}&no_rooms=${t.rooms}` },
+  { id:'airbnb', name:'Airbnb', code:'AB', cls:'hl-airbnb',
+    url:t=>`https://www.airbnb.com/s/${enc(t.city+'--Sarawak--Malaysia')}/homes?checkin=${t.depart}&checkout=${t.ret}&adults=${t.pax}` },
+  { id:'hotels', name:'Hotels.com', code:'HC', cls:'hl-hotels',
+    url:t=>`https://www.hotels.com/Hotel-Search?destination=${enc(t.city+', Sarawak, Malaysia')}&startDate=${t.depart}&endDate=${t.ret}&rooms=${t.rooms}&adults=${t.pax}` },
 ];
 
-// Coordinates for live weather lookups (Open-Meteo, no API key required)
-const DEST_COORDS = {
-  KCH:{lat:1.5533,lon:110.3592}, MYY:{lat:4.3995,lon:113.9915},
-  SBW:{lat:2.2872,lon:111.8305}, BTU:{lat:3.1667,lon:113.0333},
-  LMN:{lat:4.7500,lon:115.0000}, MKM:{lat:2.8996,lon:112.0764},
-};
-
-// WMO weather codes (subset used by Open-Meteo) -> emoji + label
-const WMO_CODES = {
-  0:['☀️','Clear sky'],1:['🌤️','Mainly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],
-  45:['🌫️','Fog'],48:['🌫️','Fog'],
-  51:['🌦️','Light drizzle'],53:['🌦️','Drizzle'],55:['🌦️','Dense drizzle'],
-  61:['🌧️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],
-  80:['🌧️','Rain showers'],81:['🌧️','Rain showers'],82:['⛈️','Violent showers'],
-  95:['⛈️','Thunderstorm'],96:['⛈️','Thunderstorm'],99:['⛈️','Thunderstorm'],
-};
-function wmoLabel(code){return WMO_CODES[code]||['🌡️','—']}
-
-// General Sarawak seasonal climate notes (fallback when trip is beyond the live forecast window)
-const SARAWAK_CLIMATE = [
-  'Northeast monsoon — frequent heavy rain, especially on the coast. Pack a rain jacket.',
-  'Tail end of monsoon season — still wet, expect regular showers.',
-  'Transitional month — rain becoming less frequent.',
-  'Generally drier, warm and humid — good travel window.',
-  'One of the drier months — hot, humid, occasional afternoon showers.',
-  'Dry-ish season continues — hot days, good for outdoor activities.',
-  'Southwest monsoon period — drier than average, warm.',
-  'Similar to July — drier stretch, ideal for jungle trekking.',
-  'Rain starts picking up again toward month end.',
-  'Wetter month — showers become more frequent.',
-  'Northeast monsoon begins — heavy rain likely, especially in coastal areas.',
-  'Peak monsoon — the wettest month of the year, expect frequent heavy rain.',
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const CLIMATE = [
+  'Northeast monsoon, with frequent heavy rain especially on the coast. Pack a rain jacket.',
+  'Tail end of the monsoon. Still wet, so expect regular showers.',
+  'A transitional month, with rain becoming less frequent.',
+  'Generally drier, warm and humid. A good travel window.',
+  'One of the drier months. Hot and humid, with occasional afternoon showers.',
+  'The drier season continues. Hot days, good for outdoor activities.',
+  'Southwest monsoon period, drier than average and warm.',
+  'Similar to July. A drier stretch, ideal for jungle trekking.',
+  'Rain starts to pick up again towards the end of the month.',
+  'A wetter month, with showers becoming more frequent.',
+  'The northeast monsoon begins. Heavy rain is likely, especially on the coast.',
+  'Peak monsoon. The wettest month of the year, with frequent heavy rain.',
 ];
+const WMO = {0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],45:['🌫️','Fog'],48:['🌫️','Fog'],
+  51:['🌦️','Drizzle'],53:['🌦️','Drizzle'],55:['🌦️','Drizzle'],61:['🌧️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],
+  80:['🌦️','Showers'],81:['🌧️','Showers'],82:['⛈️','Heavy showers'],95:['⛈️','Thunderstorm'],96:['⛈️','Thunderstorm'],99:['⛈️','Thunderstorm']};
 
-/* ===== LIVE WEATHER (Open-Meteo — free, no key) ===== */
-async function loadWeather(dest,ci,co){
-  const card=document.getElementById('weather-card');
-  const body=document.getElementById('weather-body');
-  card.style.display='block';
-  document.getElementById('w-dest-city').textContent=DEST_NAMES[dest];
-  body.innerHTML='<div class="ms-text" style="color:rgba(245,239,224,0.45)">Loading forecast…</div>';
+/* ════════════════════════════════════════════════════════════
+   HELPERS
+   ════════════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,'0');
+const isoLocal = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; // local date, not UTC
+const parseISO = s => { const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||''); return m ? new Date(+m[1],+m[2]-1,+m[3]) : null; };
+const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+const today = () => { const d=new Date(); d.setHours(0,0,0,0); return d; };
+const daysBetween = (a,b) => Math.round((parseISO(b)-parseISO(a))/864e5);
+const rm = n => 'RM ' + Math.round(n).toLocaleString('en-MY');
+const fmtDay = s => parseISO(s).toLocaleDateString('en-MY',{weekday:'short',day:'numeric',month:'short'});
+const fmtDate = s => parseISO(s).toLocaleDateString('en-MY',{day:'numeric',month:'short',year:'numeric'});
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>t.classList.remove('show'),2800); }
 
-  const today=new Date(); today.setHours(0,0,0,0);
-  const diffDays=Math.round((new Date(ci)-today)/86400000);
+/* ════════════════════════════════════════════════════════════
+   STATE (defaults ← saved ← share link)
+   ════════════════════════════════════════════════════════════ */
+const STORE='sarawakgo.v2';
+function defaults(){
+  return { tripType:'return', origin:'KUL', dest:'KCH', depart:isoLocal(addDays(today(),7)), ret:isoLocal(addDays(today(),11)),
+    pax:2, rooms:1, tier:'com', foreign:false, airline:null, hotel:null, daily:null, ccy:'USD' };
+}
+function sanitize(s){
+  const d=defaults(), o=Object.assign({},d,s||{});
+  if(!['return','oneway'].includes(o.tripType)) o.tripType=d.tripType;
+  if(!ORIGINS[o.origin]) o.origin=''; if(!DESTS[o.dest]) o.dest='';
+  if(!TIERS[o.tier]) o.tier=d.tier;
+  o.pax=Math.min(9,Math.max(1,parseInt(o.pax)||d.pax)); o.rooms=Math.min(5,Math.max(1,parseInt(o.rooms)||d.rooms));
+  if(!parseISO(o.depart) || parseISO(o.depart)<today()){ o.depart=d.depart; o.ret=d.ret; }
+  if(!parseISO(o.ret)) o.ret=isoLocal(addDays(parseISO(o.depart),3));
+  o.foreign=!!o.foreign;
+  if(o.daily && typeof o.daily==='object'){ ['food','transport','activities'].forEach(k=>{ o.daily[k]=Math.max(0,Math.min(400,+o.daily[k]||0)); }); } else o.daily=null;
+  return o;
+}
+function loadState(){
+  let s={};
+  try{ s=JSON.parse(localStorage.getItem(STORE))||{}; }catch(e){}
+  const q=new URLSearchParams(location.search);
+  if(q.has('o')||q.has('d')){
+    s=Object.assign({},s,{ origin:q.get('o'), dest:q.get('d'), depart:q.get('dt'), ret:q.get('rt'),
+      pax:q.get('p'), rooms:q.get('r'), tier:q.get('t'), tripType:q.get('tt')==='1'?'oneway':'return', foreign:q.get('f')==='1',
+      airline:q.get('a'), hotel:q.get('h'), daily:null });
+  }
+  return sanitize(s);
+}
+let state=loadState();
+function shareURL(){
+  const p=new URLSearchParams({o:state.origin,d:state.dest,dt:state.depart,rt:state.ret,p:state.pax,r:state.rooms,t:state.tier});
+  if(state.tripType==='oneway') p.set('tt','1'); if(state.foreign) p.set('f','1');
+  if(state.airline) p.set('a',state.airline); if(state.hotel) p.set('h',state.hotel);
+  return location.origin+location.pathname+'?'+p.toString();
+}
+function persist(){
+  try{ localStorage.setItem(STORE,JSON.stringify(state)); }catch(e){}
+  if(location.search) history.replaceState(null,'',location.pathname+location.hash); // keep the address bar clean once loaded
+}
 
-  if(diffDays<0||diffDays>15){
-    const month=new Date(ci).getMonth();
-    document.getElementById('w-sub').textContent='Beyond live forecast range — general climate guide';
-    body.innerHTML=`<div class="info-box">🗓️ ${['January','February','March','April','May','June','July','August','September','October','November','December'][month]} in Sarawak: ${SARAWAK_CLIMATE[month]}</div>`;
+/* ════════════════════════════════════════════════════════════
+   PRICING
+   ════════════════════════════════════════════════════════════ */
+function dailyRates(){ return state.daily || TIERS[state.tier].daily; }
+
+function compute(){
+  const s=state, T=TIERS[s.tier];
+  const errs=[];
+  if(!s.origin) errs.push('Choose where you are flying from.');
+  if(!s.dest) errs.push('Choose a destination in Sarawak.');
+  const nights=daysBetween(s.depart,s.ret);
+  if(!(nights>0)) errs.push(s.tripType==='return' ? 'The return date must be after the departure date.' : 'Check-out must be after the departure date.');
+  else if(nights>60) errs.push('Trips of more than 60 nights are not supported.');
+  if(errs.length) return {errs};
+
+  const legs = s.tripType==='return' ? 2 : 1;
+  const fares = FARES[s.origin][s.dest];
+  const flights = AIRLINES.filter(a=>fares[a.id]).map(a=>{
+    const perLeg=Math.round(fares[a.id]*T.mult);
+    return { ...a, perLeg, total:(perLeg+T.tax)*s.pax*legs };
+  }).sort((a,b)=>a.total-b.total);
+  const fl = flights.find(f=>f.id===s.airline) || flights[0];
+
+  const hotels = HOTELS.map(h=>{
+    const rate=HOTEL_RATES[s.dest][h.id][s.tier];
+    const base=rate*s.rooms*nights, tax=Math.round(base*T.hotelTax), tt=s.foreign?TOURISM_TAX*s.rooms*nights:0;
+    return { ...h, rate, base, tax, tt, total:base+tax+tt };
+  }).sort((a,b)=>a.total-b.total);
+  const ht = hotels.find(h=>h.id===s.hotel) || hotels[0];
+
+  const days = nights+1, dr=dailyRates();
+  const daily = (dr.food+dr.transport+dr.activities)*s.pax*days;
+  const total = fl.total+ht.total+daily;
+  return { nights, legs, days, flights, fl, hotels, ht, daily, dr, total, T, city:DESTS[s.dest].name };
+}
+
+/* ════════════════════════════════════════════════════════════
+   RENDER
+   ════════════════════════════════════════════════════════════ */
+function renderPlanner(){
+  document.querySelectorAll('input[name=tripType]').forEach(r=>r.checked=r.value===state.tripType);
+  document.querySelectorAll('input[name=tier]').forEach(r=>r.checked=r.value===state.tier);
+  $('origin').value=state.origin; $('dest').value=state.dest;
+  $('depart').value=state.depart; $('ret').value=state.ret;
+  $('depart').min=isoLocal(today()); $('ret').min=isoLocal(addDays(parseISO(state.depart)||today(),1));
+  $('ret-label').textContent = state.tripType==='return' ? 'Return' : 'Check-out';
+  $('pax-o').textContent=state.pax; $('rooms-o').textContent=state.rooms;
+  document.querySelector('[data-step=pax][data-d="-1"]').disabled=state.pax<=1;
+  document.querySelector('[data-step=pax][data-d="1"]').disabled=state.pax>=9;
+  document.querySelector('[data-step=rooms][data-d="-1"]').disabled=state.rooms<=1;
+  document.querySelector('[data-step=rooms][data-d="1"]').disabled=state.rooms>=5;
+  $('foreign').checked=state.foreign;
+  const n=daysBetween(state.depart,state.ret);
+  $('nights-pill').textContent = n>0 ? `🌙 ${n} night${n>1?'s':''}` : '';
+  const need=Math.ceil(state.pax/3);
+  $('room-tip').hidden = state.rooms>=need;
+  $('room-tip-t').textContent=`Most rooms fit 2–3 guests. ${state.pax} travellers usually need ${need} rooms.`;
+}
+
+function renderDests(){
+  const T=TIERS.opt, legs=state.tripType==='return'?2:1;
+  $('dest-grid').innerHTML=Object.entries(DESTS).map(([code,d])=>{
+    let from='';
+    if(state.origin){ const f=FARES[state.origin][code]; const min=Math.min(...Object.values(f)); from=rm((Math.round(min*T.mult)+T.tax)*legs); }
+    return `<button type="button" class="dest${code===state.dest?' is-sel':''}" data-dest="${code}" aria-pressed="${code===state.dest}">
+      <div class="dest-art" style="background:${d.art}"><span class="dest-sel">Selected</span><span class="code">${code}</span><h3>${d.name}</h3><p>${d.tagline}</p></div>
+      <div class="dest-body">
+        <div class="chips">${d.hl.map(h=>`<span>${esc(h)}</span>`).join('')}</div>
+        <div style="font-size:13px;color:var(--muted)">🍽️ Try: ${esc(d.food)}</div>
+        <div class="dest-foot"><span>${state.origin?`Flights from ${ORIGINS[state.origin]}`:'Choose a departure city'}</span><b>${from?`${from} <small style="font-weight:400;color:var(--muted)">${legs===2?'return':'one-way'}</small>`:''}</b></div>
+      </div></button>`;
+  }).join('');
+}
+
+function optHTML(name,item,sel,cheapest,sub,price,link,linkText,extraTag){
+  return `<label class="opt${sel?' is-sel':''}">
+    <input type="radio" name="${name}" value="${item.id}" ${sel?'checked':''}>
+    <span class="logo ${item.cls}" aria-hidden="true">${item.code||item.id}</span>
+    <span class="opt-main"><b>${esc(item.name)}${cheapest?'<span class="tag">Cheapest</span>':''}${extraTag||''}</b><small>${sub}</small></span>
+    <span class="opt-end"><strong>${rm(price)}</strong><a href="${link}" target="_blank" rel="noopener">${linkText} ↗</a></span>
+  </label>`;
+}
+
+let lastTotal=0;
+function renderResults(r){
+  const has=!r.errs;
+  document.body.classList.toggle('has-trip',has);
+  $('results-body').hidden=!has; $('empty').hidden=has;
+  $('p-msg').textContent = r.errs ? r.errs[0] : '';
+  if(!has){ $('empty-t').textContent=r.errs.join(' '); $('trip-line').textContent='Fill in the planner above to see your estimate.'; return; }
+  const s=state, connect=DESTS[s.dest].connect||s.origin==='KBR';
+  const tripTxt=`${ORIGINS[s.origin]} → ${r.city} · ${s.tripType==='return'?'Return':'One-way'} · ${fmtDate(s.depart)} – ${fmtDate(s.ret)} · ${r.nights} night${r.nights>1?'s':''} · ${s.pax} traveller${s.pax>1?'s':''}`;
+  $('trip-line').textContent=tripTxt;
+
+  // Flights
+  $('fl-sub').textContent=`${ORIGINS[s.origin]} → ${r.city} · ${r.legs===2?'return':'one-way'} · ${r.T.short} fares`;
+  $('fl-amt').innerHTML=`${rm(r.fl.total)}<small>${esc(r.fl.name)}</small>`;
+  const cheapF=r.flights[0].id;
+  $('fl-opts').innerHTML=r.flights.map(f=>optHTML('airline',f,f.id===r.fl.id,f.id===cheapF,
+    `${rm(f.perLeg)} per person per flight + ${rm(r.T.tax)} taxes`, f.total, f.site, 'Visit',
+    connect?'<span class="tag warn">Likely 1 stop</span>':'')).join('');
+  $('fl-lines').innerHTML=`<div><span>Fares: ${rm(r.fl.perLeg)} × ${s.pax} pax × ${r.legs} flight${r.legs>1?'s':''}</span><b>${rm(r.fl.perLeg*s.pax*r.legs)}</b></div>
+    <div><span>Airport taxes &amp; surcharges</span><b>${rm(r.T.tax*s.pax*r.legs)}</b></div>`;
+  $('fl-note').textContent = connect ? 'This route usually connects via another city. Allow extra travel time.' : 'Prices are average estimates. Check live fares before you book.';
+  const q=`Flights from ${s.origin} to ${s.dest} on ${s.depart}${s.tripType==='return'?' returning '+s.ret:' one way'}`;
+  $('gflights').href='https://www.google.com/travel/flights?q='+enc(q);
+
+  // Hotels
+  const trip={city:r.city,depart:s.depart,ret:s.ret,rooms:s.rooms,pax:s.pax};
+  $('ht-sub').textContent=`${s.rooms} room${s.rooms>1?'s':''} × ${r.nights} night${r.nights>1?'s':''} in ${r.city}`;
+  $('ht-amt').innerHTML=`${rm(r.ht.total)}<small>${esc(r.ht.name)}</small>`;
+  const cheapH=r.hotels[0].id;
+  $('ht-opts').innerHTML=r.hotels.map(h=>optHTML('hotel',h,h.id===r.ht.id,h.id===cheapH,
+    `${rm(h.rate)} per room per night`, h.total, h.url(trip), 'Search')).join('');
+  $('ht-lines').innerHTML=`<div><span>Room rate: ${rm(r.ht.rate)} × ${s.rooms} room${s.rooms>1?'s':''} × ${r.nights} night${r.nights>1?'s':''}</span><b>${rm(r.ht.base)}</b></div>
+    <div><span>${s.tier==='opt'?'SST (8%, est.)':'Service charge 10% + SST 8% (est.)'}</span><b>${rm(r.ht.tax)}</b></div>
+    ${s.foreign?`<div><span>Tourism tax (RM10 per room per night)</span><b>${rm(r.ht.tt)}</b></div>`:''}`;
+
+  // Daily
+  $('dy-sub').textContent=`${s.pax} traveller${s.pax>1?'s':''} × ${r.days} days`;
+  $('dy-amt').innerHTML=`${rm(r.daily)}<small>${rm(r.dr.food+r.dr.transport+r.dr.activities)} per person per day</small>`;
+  ['food','transport','activities'].forEach(k=>{ $('s-'+k).value=r.dr[k]; $('v-'+k).textContent=`${rm(r.dr[k])} / day`; });
+
+  // Summary
+  $('s-route').textContent=`${ORIGINS[s.origin]} → ${r.city} · ${r.nights}N · ${s.pax} pax · ${r.T.label}`;
+  animate($('s-total'),lastTotal,r.total); animate($('m-total'),lastTotal,r.total); lastTotal=r.total;
+  $('s-pp').textContent=`${rm(r.total/s.pax)} per person`;
+  $('l-fl').textContent=rm(r.fl.total); $('l-ht').textContent=rm(r.ht.total); $('l-dy').textContent=rm(r.daily);
+  const C=2*Math.PI*52; let off=0;
+  [['d-fl',r.fl.total],['d-ht',r.ht.total],['d-dy',r.daily]].forEach(([id,v])=>{
+    const len=r.total?C*v/r.total:0; const el=$(id);
+    el.setAttribute('stroke-dasharray',`${Math.max(0,len-2)} ${C}`); el.setAttribute('stroke-dashoffset',-off); off+=len;
+  });
+  renderFx(r.total);
+}
+
+function animate(el,from,to){
+  cancelAnimationFrame(el._raf);
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches||from===to){ el.textContent=rm(to); return; }
+  const t0=performance.now(), dur=450;
+  const step=t=>{ const p=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-p,3); el.textContent=rm(from+(to-from)*e); if(p<1) el._raf=requestAnimationFrame(step); };
+  el._raf=requestAnimationFrame(step);
+}
+
+/* ── Live exchange rates (Frankfurter, ECB reference rates) ── */
+let fx=null, fxFailed=false;
+async function loadFx(){
+  try{
+    const res=await fetch('https://api.frankfurter.dev/v1/latest?base=MYR&symbols=USD,SGD,EUR,GBP,AUD,CNY,JPY');
+    if(!res.ok) throw 0;
+    fx=await res.json();
+  }catch(e){ fxFailed=true; }
+  update(false);
+}
+function renderFx(total){
+  const c=state.ccy; $('ccy').value=c;
+  if(fx&&fx.rates[c]){
+    const v=total*fx.rates[c];
+    $('fx-val').textContent='≈ '+v.toLocaleString('en-MY',{style:'currency',currency:c,maximumFractionDigits:0});
+    $('fx-src').textContent=`ECB reference rate, ${fx.date}`;
+  }else{ $('fx-val').textContent='—'; $('fx-src').textContent=fxFailed?'Exchange rates unavailable offline':'Loading exchange rates…'; }
+}
+
+/* ── Live weather (Open-Meteo) with seasonal fallback ── */
+const wxCache={}; let wxTimer=null, wxKey='';
+function scheduleWeather(){
+  clearTimeout(wxTimer);
+  if(!state.dest||!(daysBetween(state.depart,state.ret)>0)) return;
+  wxTimer=setTimeout(loadWeather,500);
+}
+async function loadWeather(){
+  const s=state, d=DESTS[s.dest]; $('wx-city').textContent=d.name;
+  const t0=today(), limit=addDays(t0,15), dep=parseISO(s.depart), ret=parseISO(s.ret);
+  if(dep>limit){
+    $('wx-sub').textContent=`Typical ${MONTHS[dep.getMonth()]} weather (live forecast is available up to 16 days ahead)`;
+    $('wx-body').innerHTML=`<div class="wx-note">🗓️ <b>${MONTHS[dep.getMonth()]} in Sarawak:</b> ${CLIMATE[dep.getMonth()]}</div>`;
     return;
   }
-
-  try{
-    const {lat,lon}=DEST_COORDS[dest];
-    const endDate=co&&co>ci?co:ci;
-    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_mean&timezone=Asia%2FKuching&start_date=${ci}&end_date=${endDate}`;
-    const res=await fetch(url);
-    if(!res.ok)throw new Error('weather fetch failed');
-    const data=await res.json();
-    document.getElementById('w-sub').textContent=`${data.daily.time.length}-day forecast for your trip`;
-
-    let html='<table class="compare-table"><thead><tr><th>Date</th><th>Sky</th><th>Temp</th><th>Rain chance</th></tr></thead><tbody>';
-    data.daily.time.forEach((date,i)=>{
-      const [emoji,label]=wmoLabel(data.daily.weathercode[i]);
-      const hi=Math.round(data.daily.temperature_2m_max[i]);
-      const lo=Math.round(data.daily.temperature_2m_min[i]);
-      const rain=data.daily.precipitation_probability_mean[i];
-      html+=`<tr><td>${date}</td><td>${emoji} ${label}</td><td>${hi}° / ${lo}°C</td><td>${rain==null?'—':rain+'%'}</td></tr>`;
-    });
-    html+='</tbody></table>';
-    body.innerHTML=html;
-  }catch(e){
-    document.getElementById('w-sub').textContent='Forecast unavailable';
-    body.innerHTML='<div class="ms-text" style="color:rgba(245,239,224,0.4)">Could not load live forecast right now — try again later.</div>';
+  const end=isoLocal(ret>limit?limit:ret), key=`${s.dest}|${s.depart}|${end}`; wxKey=key;
+  if(!wxCache[key]){
+    $('wx-sub').textContent='Loading forecast…';
+    try{
+      const url=`https://api.open-meteo.com/v1/forecast?latitude=${d.lat}&longitude=${d.lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FKuching&start_date=${s.depart}&end_date=${end}`;
+      const res=await fetch(url); if(!res.ok) throw 0;
+      wxCache[key]=(await res.json()).daily;
+    }catch(e){
+      if(wxKey!==key) return;
+      $('wx-sub').textContent='Live forecast unavailable, so showing the seasonal guide';
+      $('wx-body').innerHTML=`<div class="wx-note">🗓️ <b>${MONTHS[dep.getMonth()]} in Sarawak:</b> ${CLIMATE[dep.getMonth()]}</div>`;
+      return;
+    }
   }
+  if(wxKey!==key) return; // a newer request superseded this one
+  const w=wxCache[key], partial=ret>limit;
+  $('wx-sub').textContent=`${w.time.length}-day forecast${partial?' (the rest of your trip is beyond the forecast range)':''}`;
+  $('wx-body').innerHTML=`<div class="wx-row">${w.time.map((t,i)=>{ const [e,l]=WMO[w.weathercode[i]]||['🌡️','—']; const p=w.precipitation_probability_max[i];
+    return `<div class="wx-day"><div class="d">${fmtDay(t)}</div><div class="e" title="${l}">${e}</div><div class="t">${Math.round(w.temperature_2m_max[i])}° <span>${Math.round(w.temperature_2m_min[i])}°</span></div><div class="r">${p==null?'':'💧 '+p+'%'}</div></div>`; }).join('')}</div>`;
 }
 
-/* ===== LIVE CURRENCY CONVERSION (Frankfurter.dev — free, no key) ===== */
-async function loadFx(amountMYR){
-  const row=document.getElementById('fx-row');
-  try{
-    const url='https://api.frankfurter.dev/v1/latest?base=MYR&symbols=USD,SGD,GBP';
-    const res=await fetch(url);
-    if(!res.ok)throw new Error('fx fetch failed');
-    const data=await res.json();
-    const usd=(amountMYR*data.rates.USD).toFixed(0);
-    const sgd=(amountMYR*data.rates.SGD).toFixed(0);
-    const gbp=(amountMYR*data.rates.GBP).toFixed(0);
-    document.getElementById('fx-usd').textContent=`$${usd} USD`;
-    document.getElementById('fx-sgd').textContent=`S$${sgd} SGD`;
-    document.getElementById('fx-gbp').textContent=`£${gbp} GBP`;
-    row.style.display='block';
-  }catch(e){
-    row.style.display='none';
-  }
+/* ════════════════════════════════════════════════════════════
+   UPDATE LOOP & EVENTS
+   ════════════════════════════════════════════════════════════ */
+let current={errs:['init']};
+function update(refetch=true){
+  state=sanitize(state);
+  persist();
+  renderPlanner(); renderDests();
+  current=compute(); renderResults(current);
+  if(refetch) scheduleWeather();
 }
 
-/* STATE */
-let selectedTier = 'opt';
-
-function selectTier(t,el){
-  selectedTier=t;
-  document.querySelectorAll('.tier-card').forEach(c=>c.classList.remove('selected'));
-  el.classList.add('selected');
+function goResults(){
+  if(current.errs){ $('p-msg').textContent=current.errs[0]; return; }
+  $('results').scrollIntoView({behavior:'smooth'});
 }
+function addRoom(){ state.rooms=Math.min(5,Math.ceil(state.pax/3)); update(false); }
+function resetDaily(){ state.daily=null; update(false); toast(`Daily spending reset to ${TIERS[state.tier].short} defaults`); }
 
-function fm(n){return 'RM '+n.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})}
+$('origin').innerHTML='<option value="">Select city</option>'+Object.entries(ORIGINS).map(([k,v])=>`<option value="${k}">${v} (${k})</option>`).join('');
+$('dest').innerHTML='<option value="">Select destination</option>'+Object.entries(DESTS).map(([k,v])=>`<option value="${k}">${v.name} (${k})</option>`).join('');
 
-/* Night counter */
-document.getElementById('checkin').addEventListener('change',updateNights);
-document.getElementById('checkout').addEventListener('change',updateNights);
-function updateNights(){
-  const ci=document.getElementById('checkin').value,co=document.getElementById('checkout').value;
-  if(ci&&co){const d=Math.round((new Date(co)-new Date(ci))/86400000);const p=document.getElementById('npill');if(d>0){document.getElementById('ncnt').textContent=d;p.style.display='block'}else p.style.display='none'}
-}
-const today=new Date().toISOString().split('T')[0];
-document.getElementById('checkin').min=today;
-document.getElementById('checkout').min=today;
-document.getElementById('checkin').addEventListener('change',()=>{
-  const ci=document.getElementById('checkin').value;
-  const co=document.getElementById('checkout');
-  if(ci){co.min=ci; if(co.value&&co.value<=ci)co.value=''}
+$('origin').addEventListener('change',e=>{ state.origin=e.target.value; state.airline=null; update(false); });
+$('dest').addEventListener('change',e=>{ state.dest=e.target.value; state.airline=null; update(); });
+$('depart').addEventListener('change',e=>{
+  if(!e.target.value) return;
+  const n=Math.max(1,daysBetween(state.depart,state.ret)||3);
+  state.depart=e.target.value;
+  if(!(daysBetween(state.depart,state.ret)>0)) state.ret=isoLocal(addDays(parseISO(state.depart),n)); // keep trip length when moving dates
+  update();
 });
+$('ret').addEventListener('change',e=>{ if(e.target.value){ state.ret=e.target.value; update(); } });
+$('foreign').addEventListener('change',e=>{ state.foreign=e.target.checked; update(false); });
+$('ccy').addEventListener('change',e=>{ state.ccy=e.target.value; update(false); });
+document.querySelectorAll('input[name=tripType]').forEach(r=>r.addEventListener('change',e=>{ state.tripType=e.target.value; update(false); }));
+document.querySelectorAll('input[name=tier]').forEach(r=>r.addEventListener('change',e=>{ state.tier=e.target.value; state.daily=null; update(false); }));
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{ const k=b.dataset.step; state[k]+= +b.dataset.d; update(false); }));
+$('dest-grid').addEventListener('click',e=>{
+  const c=e.target.closest('[data-dest]'); if(!c) return;
+  state.dest=c.dataset.dest; state.airline=null; update();
+  toast(`${DESTS[state.dest].name} selected`);
+  if(!current.errs) setTimeout(()=>$('results').scrollIntoView({behavior:'smooth'}),150);
+});
+document.addEventListener('change',e=>{
+  if(e.target.name==='airline'){ state.airline=e.target.value; update(false); }
+  if(e.target.name==='hotel'){ state.hotel=e.target.value; update(false); }
+});
+['food','transport','activities'].forEach(k=>$('s-'+k).addEventListener('input',e=>{
+  state.daily=Object.assign({},dailyRates(),{[k]:+e.target.value}); update(false);
+}));
 
-/* ===== MAIN CALCULATE ===== */
-async function calculate(){
-  const origin=document.getElementById('origin').value;
-  const dest=document.getElementById('destination').value;
-  const ci=document.getElementById('checkin').value;
-  const co=document.getElementById('checkout').value;
-  const pax=parseInt(document.getElementById('travellers').value);
-  const rooms=parseInt(document.getElementById('rooms').value);
-
-  if(!origin)return alert('Please select your departure city.');
-  if(!dest)return alert('Please select a Sarawak destination.');
-  if(!ci||!co)return alert('Please select check-in and check-out dates.');
-  const nights=Math.round((new Date(co)-new Date(ci))/86400000);
-  if(nights<=0)return alert('Check-out date must be after check-in.');
-
-  const tier=selectedTier;
-  const fares=FARES[origin][dest];
-  const taxPP=AIR_TAX[tier];
-  const mult=TIER_MULT[tier];
-
-  /* BUILD AIRLINE ROWS */
-  const airlineTbody=document.getElementById('airline-tbody');
-  airlineTbody.innerHTML='';
-  let cheapestFare=Infinity,cheapestAirline=null;
-  let airlineResults=[];
-
-  AIRLINES.forEach(al=>{
-    if(fares[al.id]===null||fares[al.id]===undefined)return;
-    const baseFare=Math.round(fares[al.id]*mult);
-    const total=baseFare*pax;
-    airlineResults.push({al,baseFare,total});
-    if(baseFare<cheapestFare){cheapestFare=baseFare;cheapestAirline=al.id}
-  });
-
-  // Sort cheapest first
-  airlineResults.sort((a,b)=>a.baseFare-b.baseFare);
-
-  const chipCls={opt:'chip-opt',com:'chip-com',prem:'chip-prem'};
-  airlineResults.forEach((r,i)=>{
-    const isCheapest=(r.al.id===cheapestAirline);
-    const tr=document.createElement('tr');
-    if(isCheapest)tr.classList.add('selected-row');
-    const bookUrl=r.al.url(ORIGIN_IATA[origin],DEST_IATA[dest],ci);
-    tr.innerHTML=`
-      <td><span class="airline-logo"><span class="al-dot ${r.al.cls}">${r.al.code}</span>${r.al.name}${isCheapest?'<span class="cheapest-tag">CHEAPEST</span>':''}</span></td>
-      <td><span class="price-chip ${chipCls[tier]}">${fm(r.baseFare)}</span></td>
-      <td><strong>${fm(r.total)}</strong></td>
-      <td><a href="${bookUrl}" target="_blank" rel="noopener" class="book-btn">Check ↗</a></td>
-    `;
-    airlineTbody.appendChild(tr);
-  });
-
-  // Use cheapest airline for subtotal
-  const selFare=airlineResults[0]?airlineResults[0].baseFare:0;
-  const flightFareTotal=selFare*pax;
-  const taxTotal=taxPP*pax;
-  const flightSubtotal=flightFareTotal+taxTotal;
-
-  document.getElementById('r-pax-head').textContent=pax;
-  document.getElementById('r-dest-city').textContent=DEST_NAMES[dest];
-  document.getElementById('r-route-sub').textContent=`${ORIGIN_NAMES[origin]} → ${DEST_NAMES[dest]} · One-way · ${pax} pax`;
-  document.getElementById('r-flight-sel').textContent=fm(flightFareTotal);
-  document.getElementById('r-tax').textContent=fm(taxTotal);
-  document.getElementById('r-flight-sub').textContent=fm(flightSubtotal);
-
-  /* BUILD HOTEL ROWS */
-  const hotelTbody=document.getElementById('hotel-tbody');
-  hotelTbody.innerHTML='';
-  let cheapestHotel=Infinity,cheapestHotelId=null;
-  let hotelResults=[];
-
-  HOTELS.forEach(ht=>{
-    const ratePN=HOTEL_RATES[dest][ht.id][tier];
-    const total=ratePN*rooms*nights;
-    hotelResults.push({ht,ratePN,total});
-    if(ratePN<cheapestHotel){cheapestHotel=ratePN;cheapestHotelId=ht.id}
-  });
-  hotelResults.sort((a,b)=>a.ratePN-b.ratePN);
-
-  hotelResults.forEach(r=>{
-    const isCheapest=(r.ht.id===cheapestHotelId);
-    const tr=document.createElement('tr');
-    if(isCheapest)tr.classList.add('selected-row');
-    const bookUrl=r.ht.url(DEST_NAMES[dest],ci,co,rooms);
-    tr.innerHTML=`
-      <td><span class="hotel-logo"><span class="hl-dot ${r.ht.cls}">${r.ht.code}</span>${r.ht.name}${isCheapest?'<span class="cheapest-tag">CHEAPEST</span>':''}</span></td>
-      <td><span class="price-chip ${chipCls[tier]}">${fm(r.ratePN)}/night</span></td>
-      <td><strong>${fm(r.total)}</strong></td>
-      <td><a href="${bookUrl}" target="_blank" rel="noopener" class="book-btn">Check ↗</a></td>
-    `;
-    hotelTbody.appendChild(tr);
-  });
-
-  const selHotelRate=hotelResults[0]?hotelResults[0].ratePN:0;
-  const hotelBase=selHotelRate*rooms*nights;
-  const svcCharge=Math.round(hotelBase*0.10);
-  const hotelSubtotal=hotelBase+svcCharge;
-
-  document.getElementById('r-rooms-head').textContent=rooms;
-  document.getElementById('r-nights-head').textContent=nights;
-  document.getElementById('r-dest-city2').textContent=DEST_NAMES[dest];
-  document.getElementById('r-hotel-sub-title').textContent=`${rooms} room${rooms>1?'s':''} × ${nights} night${nights>1?'s':''} · cheapest option pre-selected`;
-  document.getElementById('r-hotel-sel').textContent=fm(hotelBase);
-  document.getElementById('r-svc').textContent=fm(svcCharge);
-  document.getElementById('r-hotel-sub').textContent=fm(hotelSubtotal);
-
-  /* GRAND TOTAL */
-  const grand=flightSubtotal+hotelSubtotal;
-  document.getElementById('r-trip-label').textContent=`${ORIGIN_NAMES[origin]} → ${DEST_NAMES[dest]} · ${nights}N${nights>1?'s':''} · ${pax} pax`;
-  document.getElementById('ta-flight').textContent=fm(flightSubtotal);
-  document.getElementById('ta-hotel').textContent=fm(hotelSubtotal);
-  document.getElementById('grand-num').textContent=fm(grand);
-
-  const tierLabels={opt:'🌿 Optimal Budget',com:'✈️ Comfort Travel',prem:'👑 Comfort+ Travel'};
-  const tierCls={opt:'tb-opt',com:'tb-com',prem:'tb-prem'};
-  const badge=document.getElementById('tier-badge');
-  badge.textContent=tierLabels[tier];
-  badge.className=`tier-badge ${tierCls[tier]}`;
-
-  /* SHOW */
-  const rs=document.getElementById('result-section');
-  rs.classList.add('visible');
-  const tw=document.getElementById('total-wrap');
-  tw.classList.add('pulse');
-  setTimeout(()=>tw.classList.remove('pulse'),1100);
-  setTimeout(()=>rs.scrollIntoView({behavior:'smooth',block:'start'}),200);
-
-  /* LIVE DATA — weather forecast & currency conversion (free public APIs, no keys) */
-  loadWeather(dest,ci,co);
-  loadFx(grand);
+/* share / copy */
+async function copyText(text,okMsg){
+  try{ await navigator.clipboard.writeText(text); toast(okMsg); }
+  catch(e){ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); toast(okMsg); }catch(_){ toast('Copy failed. Please copy it manually.'); } ta.remove(); }
 }
-</script>
-
-<!-- ===== FOOTER ===== -->
-<footer>
-  <div class="f-orn">✦ &nbsp; ✦ &nbsp; ✦</div>
-  <p>Crafted with ❤️ for the Land of the Hornbill, Sarawak</p>
-  <p style="margin-top:0.5rem">Built by <strong>AhChaiTrp</strong> · SarawakGo Travel Calculator © 2026</p>
-  <p style="margin-top:0.6rem">
-    <button onclick="openDisclaimer()" style="background:none;border:none;cursor:pointer;color:rgba(201,168,76,0.55);font-size:0.72rem;font-family:'Outfit',sans-serif;letter-spacing:0.08em;text-decoration:underline;text-underline-offset:3px;padding:0">
-      Disclaimer &amp; Terms of Use
-    </button>
-  </p>
-  <p style="margin-top:0.3rem;opacity:0.5;font-size:0.65rem">For Sarawak travel planning only · Estimates only — verify with providers</p>
-</footer>
-
-<!-- ===== DISCLAIMER MODAL ===== -->
-<div class="modal-overlay" id="disclaimerModal" onclick="handleOverlayClick(event)">
-  <div class="modal-box" id="modalBox">
-    <div class="modal-head">
-      <div class="modal-icon">📋</div>
-      <div>
-        <div class="modal-title">Disclaimer &amp; Terms of Use</div>
-        <div class="modal-subtitle">SarawakGo Travel Cost Estimator · Effective 2026</div>
-      </div>
-      <button class="modal-close" onclick="closeDisclaimer()" aria-label="Close">✕</button>
-    </div>
-    <div class="modal-body">
-
-      <div class="modal-section">
-        <div class="ms-title">1 · Estimation Tool Only</div>
-        <div class="ms-text">
-          SarawakGo is a <strong>free travel cost estimation tool</strong> intended solely to help users plan and budget for trips within Sarawak, Malaysia. All prices displayed — including flight fares, hotel rates, airport taxes, and service charges — are <strong>reference estimates based on historical and average market data</strong> gathered prior to publication.
-        </div>
-        <div class="highlight-box">
-          ⚠️ This tool does <strong>not</strong> connect to any airline system or hotel reservation platform — flight and hotel <strong>prices</strong> are not live. Weather forecasts (via Open-Meteo) and currency conversion (via Frankfurter.dev) are pulled live from free, public, no-key-required APIs, but the underlying fare and room rates remain curated estimates and may differ significantly from actual prices at the time of booking.
-        </div>
-      </div>
-
-      <div class="modal-section">
-        <div class="ms-title">2 · No Guarantee of Accuracy</div>
-        <div class="ms-text">
-          Flight fares and hotel rates fluctuate constantly based on demand, availability, seasonal pricing, promotions, fuel surcharges, and airline or hotel policy changes. <strong>SarawakGo makes no warranty, express or implied, regarding the accuracy, completeness, or timeliness of any price displayed.</strong>
-          <br><br>
-          The figures provided are meant as a <strong>general planning guide only</strong>. Actual costs may be higher or lower. Users are strongly advised to verify all prices directly with the respective airline or accommodation provider before making any financial commitment or purchasing any ticket or reservation.
-        </div>
-      </div>
-
-      <div class="modal-section">
-        <div class="ms-title">3 · No Liability for Financial Loss</div>
-        <div class="ms-text">
-          <strong>AhChaiTrp and SarawakGo shall not be held liable</strong> for any financial loss, missed bookings, over-budgeting, under-budgeting, travel disruption, or any other direct or indirect damages arising from reliance on the estimates provided by this tool.
-        </div>
-        <div class="highlight-box">
-          By using this tool, you acknowledge and agree that <strong>all booking decisions and financial commitments are made entirely at your own risk</strong>, and that you will independently verify all pricing with the relevant service provider before proceeding.
-        </div>
-      </div>
-
-      <div class="modal-section">
-        <div class="ms-title">4 · Third-Party Links</div>
-        <div class="ms-text">
-          This tool contains links to third-party websites including AirAsia, Malaysia Airlines, Batik Air, Firefly, Agoda, Booking.com, Airbnb, and Hotels.com. These links are provided for user convenience only.
-          <br><br>
-          <strong>SarawakGo is not affiliated with, endorsed by, or sponsored by any of these companies.</strong> We do not receive commission, referral fees, or any form of compensation from clicks on these links. All trademarks and brand names belong to their respective owners.
-        </div>
-      </div>
-
-      <div class="modal-section">
-        <div class="ms-title">5 · No Professional Advice</div>
-        <div class="ms-text">
-          Nothing on this tool constitutes financial, travel, legal, or professional advice of any kind. SarawakGo is a personal project built for informational and planning purposes only. For accurate travel pricing, please consult the official booking platforms or a licensed travel agent.
-        </div>
-      </div>
-
-      <div class="modal-section">
-        <div class="ms-title">6 · Acceptance of Terms</div>
-        <div class="ms-text">
-          Your continued use of SarawakGo constitutes your acceptance of this disclaimer. If you do not agree with any part of these terms, please discontinue use of this tool.
-        </div>
-        <div class="info-box">
-          ✦ &nbsp;<strong>In plain terms:</strong> Use these numbers as a rough guide to plan your budget. Always double-check the actual price on the airline or hotel website before you pay anything. This tool helps you estimate — it does not book or guarantee any price.
-        </div>
-      </div>
-
-      <div class="modal-footer-note">
-        SarawakGo · Built by <strong style="color:rgba(201,168,76,0.6)">AhChaiTrp</strong> · Sarikei, Sarawak, Malaysia · © 2026<br>
-        For questions or feedback, visit the project repository on GitHub.
-      </div>
-
-      <button class="modal-accept-btn" onclick="closeDisclaimer()">✓ &nbsp; I Understand — Close</button>
-    </div>
-  </div>
-</div>
-
-<script>
-function openDisclaimer(){
-  const m=document.getElementById('disclaimerModal');
-  m.classList.add('open');
-  document.body.style.overflow='hidden';
-  m.querySelector('.modal-box').scrollTop=0;
+async function shareLink(){
+  const url=shareURL();
+  if(navigator.share && matchMedia('(pointer:coarse)').matches){ try{ await navigator.share({title:'My Sarawak trip estimate',url}); return; }catch(e){ if(e.name==='AbortError') return; } }
+  copyText(url,'Link copied. Anyone who opens it sees this trip.');
 }
-function closeDisclaimer(){
-  document.getElementById('disclaimerModal').classList.remove('open');
-  document.body.style.overflow='';
+function copySummary(){
+  const r=current; if(r.errs) return;
+  const s=state;
+  const t=[`SarawakGo trip estimate`,
+    `${ORIGINS[s.origin]} → ${r.city} (${s.tripType==='return'?'return':'one-way'})`,
+    `${fmtDate(s.depart)} – ${fmtDate(s.ret)} · ${r.nights} night${r.nights>1?'s':''} · ${s.pax} traveller${s.pax>1?'s':''} · ${r.T.label}`,
+    ``,
+    `Flights (${r.fl.name}): ${rm(r.fl.total)}`,
+    `Stay (${r.ht.name}, ${s.rooms} room${s.rooms>1?'s':''}): ${rm(r.ht.total)}`,
+    `Daily spending: ${rm(r.daily)}`,
+    `TOTAL: ${rm(r.total)} (${rm(r.total/s.pax)} per person)`,
+    ``,`These are estimates only. Verify prices before booking.`, shareURL()].join('\n');
+  copyText(t,'Trip summary copied');
 }
-function handleOverlayClick(e){
-  if(e.target===document.getElementById('disclaimerModal'))closeDisclaimer();
-}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDisclaimer()});
+
+/* disclaimer modal */
+let lastFocus=null;
+function openDisclaimer(){ lastFocus=document.activeElement; $('disclaimer').classList.add('open'); document.body.style.overflow='hidden'; $('disclaimer').querySelector('.modal-x').focus(); }
+function closeDisclaimer(){ $('disclaimer').classList.remove('open'); document.body.style.overflow=''; lastFocus&&lastFocus.focus&&lastFocus.focus(); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('disclaimer').classList.contains('open')) closeDisclaimer(); });
+
+update();
+loadFx();
 </script>
 </body>
 </html>
